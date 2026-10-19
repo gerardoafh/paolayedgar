@@ -45,3 +45,7 @@ Se reservan dos lugares de papás en cada imperial, reconocidos por sus nombres 
 La asignación usa una revisión atómica en Postgres para evitar sobrecupo entre confirmaciones simultáneas. La mesa aparece en el pase, en la consulta del QR y en el panel de recepción, que permite buscar nombres y ver ocupación, reservas y pendientes. Los registros cuyo nombre empieza con PRUEBA no consumen lugares ni aparecen en los totales de recepción.
 
 Una imagen de pase ya descargada no se actualiza sola. El enlace del pase y su QR consultan la mesa actual; el invitado puede volver a descargar la imagen.
+
+## Recuperar y reenviar pases
+
+`/administrar-pases` usa la misma clave privada de recepción. Permite buscar por nombre, categoría, código o mesa, abrir el pase original para descargarlo, copiar el enlace y preparar un mensaje de WhatsApp individual o con todos los pases de una confirmación. WhatsApp permite seleccionar al contacto; no se envían mensajes automáticamente. El reenvío no crea nuevas confirmaciones, no cambia el QR y no reinicia una entrada usada. La lista incluye pases activos y omite registros de prueba.

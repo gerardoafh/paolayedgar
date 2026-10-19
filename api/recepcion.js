@@ -1,5 +1,5 @@
 import { neon } from '@neondatabase/serverless';
-import { autorizarRecepcion, extraerToken, prepararRecepcion, validarEntrada, resumenEntradas, listarLlegadas } from '../lib/recepcion.js';
+import { autorizarRecepcion, extraerToken, prepararRecepcion, validarEntrada, resumenEntradas, listarLlegadas, listarPasesParaReenvio } from '../lib/recepcion.js';
 import { actualizarMesas, etiquetaMesa } from '../lib/mesas.js';
 
 export default async function handler(req, res) {
@@ -13,13 +13,22 @@ export default async function handler(req, res) {
   let body;
   try { body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body; }
   catch { return res.status(400).json({ error: 'Solicitud inválida.' }); }
-  if (!['resumen', 'llegadas', 'mesas', 'consultar', 'registrar'].includes(body?.accion)) return res.status(400).json({ error: 'Acción inválida.' });
+  if (!['resumen', 'llegadas', 'mesas', 'pases', 'consultar', 'registrar'].includes(body?.accion)) return res.status(400).json({ error: 'Acción inválida.' });
   const connection = process.env.DATABASE_URL || process.env.POSTGRES_URL;
   if (!connection) return res.status(503).json({ error: 'No se pudo conectar. Intenta nuevamente.' });
   try {
     const sql = neon(connection);
     await prepararRecepcion(sql);
     const plan = await actualizarMesas(sql);
+    if (body.accion === 'pases') {
+      const pases = await listarPasesParaReenvio(sql);
+      return res.json({ ok: true, pases: pases.map(pase => ({
+        id: pase.id, nombre: pase.nombre, confirmacionId: pase.confirmacion_id,
+        relacion: pase.relacion, codigo: pase.id.slice(0, 8).toUpperCase(),
+        mesaTexto: etiquetaMesa(pase.mesa), fechaEntrada: pase.fecha_entrada,
+        url: 'https://paola-edgar.vercel.app/pase#' + pase.token
+      })) });
+    }
     const mesas = { mesas: plan.mesas, pendientes: plan.pendientes, capacidad: plan.capacidad };
     if (['resumen', 'llegadas', 'mesas'].includes(body.accion)) {
       const [resumen, llegadas] = await Promise.all([resumenEntradas(sql), listarLlegadas(sql)]);
