@@ -1,14 +1,19 @@
 # Paola y Edgar · Nuestra boda
 
-Invitación de boda estática con portada, galería, mapas y cuenta regresiva.
+Invitación con sobre animado, galería y confirmaciones guardadas en Postgres (Neon).
 
-## Desplegar en Vercel
+## Vercel
 
-Importar este repositorio y seleccionar **Other** como Framework Preset.
-No se necesita instalación ni comando de compilación. El directorio de salida es la raíz del proyecto (`.`).
+Rama de producción: `codex/invitacion`. Framework: Other. Sin comando de compilación. Vercel instala las dependencias de Node y despliega `api/confirmaciones.js`.
 
-## Confirmaciones
+La integración Neon configura `DATABASE_URL` en el servidor. No exponerla en el navegador ni añadirla a Git.
 
-El formulario solicita los nombres y la relación con los novios. Permite enviar la confirmación por WhatsApp al 81 1983 1332 o al 81 3591 0620. El invitado debe pulsar Enviar en WhatsApp; no hay base de datos de confirmaciones.
+## Consultar registros
 
-Las fotografías están en `assets/` y los adornos están integrados en el HTML.
+En Vercel, abrir Storage → paola-edgar-confirmaciones → Data Editor → confirmaciones_boda. Esta vista requiere iniciar sesión en tu cuenta; los invitados no pueden consultar los registros.
+
+Se guardan nombres, número de invitados, relación con los novios, WhatsApp elegido y fecha. Después del registro se ofrece continuar por WhatsApp al 81 1983 1332 o al 81 3591 0620. Guardar la confirmación y enviar WhatsApp son acciones diferentes.
+
+## Pruebas
+
+`npm test`

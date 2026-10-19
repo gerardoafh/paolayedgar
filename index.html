@@ -1,6 +1,6 @@
-<!DOCTYPE html><html lang="es" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#69734c"><meta name="description" content="Paola y Edgar · Nuestra boda · 29 de noviembre de 2026. Acompáñanos a celebrar y confirma tu asistencia."><title>Paola &amp; Edgar · Nuestra boda</title><link rel="stylesheet" href="invitacion.css"></head><body><main><section id="portada"><div class="portada-papel">
+<!DOCTYPE html><html lang="es" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#69734c"><meta name="description" content="Paola y Edgar · Nuestra boda · 29 de noviembre de 2026. Acompáñanos a celebrar y confirma tu asistencia."><title>Paola &amp; Edgar · Nuestra boda</title><link rel="stylesheet" href="invitacion.css"><link rel="stylesheet" href="sobre.css"></head><body><div id="sobre-inicio"><p class="sobre-etiqueta">Tenemos algo que celebrar contigo</p><p class="sobre-titulo">Paola y Edgar</p><button type="button" id="abrir-sobre" aria-label="Abrir la invitación de Paola y Edgar"><span class="sobre-fondo"></span><span class="sobre-carta"><span>¡Nos casamos!</span><span>29 · NOVIEMBRE · 2026</span></span><span class="sobre-lados"></span><span class="sobre-frente"></span><span class="sobre-solapa"></span><span class="sobre-sello" aria-hidden="true">P&amp;E</span></button><p class="sobre-fecha">29 · 11 · 2026</p><p class="sobre-indicacion">Toca el sello para abrir</p></div><main><section id="portada"><div class="portada-papel">
 <svg class="titulo-curvo" viewBox="0 0 400 125" role="img" aria-label="Nuestra boda"><defs><path id="arco-titulo" d="M30 120 Q200 -35 370 120"/></defs><text><textPath href="#arco-titulo" startOffset="50%" text-anchor="middle">NUESTRA BODA</textPath></text></svg>
-<h1>Paola y Edgar</h1>
+<h1 tabindex="-1">Paola y Edgar</h1>
 <img class="foto-principal" src="assets/foto-1.webp" width="1600" height="1066" fetchpriority="high" alt="Paola y Edgar tomados de la mano en un paisaje natural">
 <div class="fecha-portada"><strong>29</strong><span>NOVIEMBRE<br>2026</span></div><p class="dia-portada">DOMINGO · 5:00 P. M.</p>
 </div></section><section class="bienvenida"><svg class="ramito" viewBox="0 0 130 145" aria-hidden="true"><g fill="none" stroke="#7e8b5f" stroke-width="1.5"><path d="M64 140Q45 70 80 10M60 112Q22 82 22 48M59 94Q103 69 110 34"/></g><g fill="#99a47a"><ellipse cx="71" cy="28" rx="7" ry="16" transform="rotate(26 71 28)"/><ellipse cx="57" cy="52" rx="7" ry="17" transform="rotate(-32 57 52)"/><ellipse cx="73" cy="72" rx="7" ry="17" transform="rotate(45 73 72)"/><ellipse cx="36" cy="80" rx="7" ry="17" transform="rotate(-48 36 80)"/><ellipse cx="95" cy="61" rx="6" ry="14" transform="rotate(35 95 61)"/></g><g fill="#d9b4af"><ellipse cx="54" cy="99" rx="12" ry="20" transform="rotate(-25 54 99)"/><ellipse cx="62" cy="98" rx="12" ry="20" transform="rotate(25 62 98)"/><ellipse cx="58" cy="101" rx="20" ry="11"/><circle cx="58" cy="101" r="5" fill="#faf2db"/></g></svg><p class="verse">“Y sobre todas estas cosas, vestíos de amor, que es el vínculo perfecto.”<b>Colosenses 3:14</b></p><p>Con la bendición de Dios y el amor de nuestras familias, nos llena de alegría invitarte a celebrar el inicio de esta nueva etapa juntos.</p></section><section class="familias reveal">
@@ -104,31 +104,11 @@
       <option>Familiares de ambos</option>
       <option>Amigos de ambos</option>
     </select>
-    <p class="nota-rsvp">Elige uno de los dos números para enviar tu confirmación. WhatsApp abrirá el mensaje con tus datos; pulsa Enviar para completarla.</p>
+    <p class="nota-rsvp">Elige a quién deseas avisar. Guardaremos los nombres y tu relación con los novios para organizar la boda; después podrás continuar por WhatsApp.</p>
     <div class="acciones-rsvp">
-      <button class="btn" type="submit" value="528119831332">Enviar al 81 1983 1332</button>
-      <button class="btn" type="submit" value="528135910620">Enviar al 81 3591 0620</button>
+      <button class="btn" type="submit" value="528119831332">Confirmar · 81 1983 1332</button>
+      <button class="btn" type="submit" value="528135910620">Confirmar · 81 3591 0620</button>
     </div>
-    <p id="estado-confirmacion" class="nota-rsvp" role="status"></p>
+    <a id="continuar-whatsapp" class="btn" target="_blank" rel="noopener noreferrer" hidden>Continuar por WhatsApp</a><p id="estado-confirmacion" class="nota-rsvp" role="status"></p>
   </form>
-</dialog><script>
-(function(){
-  const modal = document.getElementById('confirmacion');
-  const form = document.getElementById('form-confirmacion');
-  document.getElementById('rsvp').addEventListener('click',function(){modal.showModal()});
-  modal.querySelector('.cerrar-confirmacion').addEventListener('click',function(){modal.close()});
-  form.addEventListener('submit',function(event){
-    event.preventDefault();
-    const names = document.getElementById('nombres-invitados');
-    if(!names.value.trim()){names.setCustomValidity('Escribe los nombres de quienes asistirán.');names.reportValidity();return;}
-    names.setCustomValidity('');
-    const number = event.submitter && event.submitter.value;
-    if(!['528119831332','528135910620'].includes(number))return;
-    const relationship = document.getElementById('relacion-invitados').value;
-    const message = '¡Hola! Confirmamos nuestra asistencia a la boda de Paola y Edgar, el 29 de noviembre de 2026.\n\nInvitados:\n' + names.value.trim() + '\n\nSomos: ' + relationship + '.';
-    window.open('https://wa.me/' + number + '?text=' + encodeURIComponent(message),'_blank','noopener,noreferrer');
-    document.getElementById('estado-confirmacion').textContent='Completa el envío en WhatsApp para que los novios reciban tu confirmación.';
-  });
-  document.getElementById('nombres-invitados').addEventListener('input',function(){this.setCustomValidity('')});
-})();
-</script></body></html>
+</dialog><script src="confirmacion.js" defer></script><script src="sobre.js" defer></script><noscript><style>#sobre-inicio{display:none}.reveal{opacity:1;transform:none}</style></noscript></body></html>
