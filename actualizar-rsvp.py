@@ -28,7 +28,7 @@ markup = '''
     </select>
     <p class="nota-rsvp">Elige uno de los dos números para enviar tu confirmación. WhatsApp abrirá el mensaje con tus datos; pulsa Enviar para completarla.</p>
     <div class="acciones-rsvp">
-      <button class="btn" type="submit" value="528119931332">Enviar al 81 1993 1332</button>
+      <button class="btn" type="submit" value="528119831332">Enviar al 81 1983 1332</button>
       <button class="btn" type="submit" value="528135910620">Enviar al 81 3591 0620</button>
     </div>
     <p id="estado-confirmacion" class="nota-rsvp" role="status"></p>
@@ -46,7 +46,7 @@ markup = '''
     if(!names.value.trim()){names.setCustomValidity('Escribe los nombres de quienes asistirán.');names.reportValidity();return;}
     names.setCustomValidity('');
     const number = event.submitter && event.submitter.value;
-    if(!['528119931332','528135910620'].includes(number))return;
+    if(!['528119831332','528135910620'].includes(number))return;
     const relationship = document.getElementById('relacion-invitados').value;
     const message = '¡Hola! Confirmamos nuestra asistencia a la boda de Paola y Edgar, el 29 de noviembre de 2026.\\n\\nInvitados:\\n' + names.value.trim() + '\\n\\nSomos: ' + relationship + '.';
     window.open('https://wa.me/' + number + '?text=' + encodeURIComponent(message),'_blank','noopener,noreferrer');
@@ -60,6 +60,6 @@ h = h.replace('</style>', css + '\n</style>').replace('</body>', markup + '\n</b
 p.write_text(h, encoding='utf-8')
 readme = p.with_name('README.md')
 r = readme.read_text(encoding='utf-8')
-r = r.replace('## Pendiente de personalizar\n\nReemplazar `52XXXXXXXXXX` en `index.html` por el número de WhatsApp de confirmación.', '## Confirmaciones\n\nEl formulario solicita los nombres y la relación con los novios. Permite enviar la confirmación por WhatsApp al 81 1993 1332 o al 81 3591 0620. El invitado debe pulsar Enviar en WhatsApp; no hay base de datos de confirmaciones.')
+r = r.replace('## Pendiente de personalizar\n\nReemplazar `52XXXXXXXXXX` en `index.html` por el número de WhatsApp de confirmación.', '## Confirmaciones\n\nEl formulario solicita los nombres y la relación con los novios. Permite enviar la confirmación por WhatsApp al 81 1983 1332 o al 81 3591 0620. El invitado debe pulsar Enviar en WhatsApp; no hay base de datos de confirmaciones.')
 readme.write_text(r, encoding='utf-8')
 print('Ventana de confirmación agregada con ambos números.')
