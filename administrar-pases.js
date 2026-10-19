@@ -15,6 +15,23 @@ async function copiar(text) {
   try { await navigator.clipboard.writeText(text); status('Enlace copiado. Ya puedes pegarlo en WhatsApp o donde prefieras.'); }
   catch { status('No pudimos copiarlo. Abre el pase y copia su enlace desde la barra del navegador.'); }
 }
+async function cambiarEstado(pase) {
+  const retirar = pase.activo !== false;
+  if (!confirm(retirar ? '¿Retirar el pase de ' + pase.nombre + '? Su QR quedará inactivo y se liberará su lugar. Podrás restaurarlo desde Mostrar pases retirados.' : '¿Restaurar el pase de ' + pase.nombre + '?')) return;
+  if (ocupado) return;
+  ocupado = true;
+  try {
+    const response = await fetch('/api/recepcion', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + clave },
+      body: JSON.stringify({ accion: retirar ? 'retirar' : 'restaurar', id: pase.id }), signal: AbortSignal.timeout(25000)
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'No se pudo actualizar el pase.');
+    ocupado = false; await cargar();
+    status(retirar ? 'Pase retirado. Su QR está inactivo y ya no ocupa lugar.' : 'Pase restaurado.');
+  } catch (error) { status(error.message); }
+  finally { ocupado = false; }
+}
 function render() {
   const q = normalizar($('buscar-pases').value.trim());
   const grupos = new Map();
@@ -35,18 +52,21 @@ function render() {
     const h = document.createElement('h2'); h.textContent = grupo[0].nombre + (grupo.length > 1 ? ' y acompañantes' : '');
     const relacion = document.createElement('p'); relacion.className = 'relacion'; relacion.textContent = grupo[0].relacion;
     section.append(h, relacion);
-    if (grupo.length > 1) section.append(link('Enviar todos los pases por WhatsApp', enlaceWhatsApp(grupo)));
+    const activos = grupo.filter(p => p.activo !== false);
+    if (activos.length > 1) section.append(link('Enviar todos los pases por WhatsApp', enlaceWhatsApp(activos)));
     for (const pase of grupo) {
       const persona = document.createElement('div'); persona.className = 'persona-pase';
       const nombre = document.createElement('h3'); nombre.textContent = pase.nombre;
       const detail = document.createElement('p'); detail.textContent = pase.mesaTexto + ' · Pase ' + pase.codigo;
       const estado = document.createElement('p');
-      estado.textContent = pase.fechaEntrada ? 'Entrada ya registrada · reenviar no reactiva el pase.' : 'Pase activo · todavía no registra entrada.';
+      estado.textContent = pase.activo === false ? 'Pase retirado · QR inactivo · no ocupa lugar.' : pase.fechaEntrada ? 'Entrada ya registrada · reenviar no reactiva el pase.' : 'Pase activo · todavía no registra entrada.';
       if (pase.fechaEntrada) estado.className = 'estado-usado';
       const acciones = document.createElement('div'); acciones.className = 'acciones-pase';
       const copy = document.createElement('button'); copy.type = 'button'; copy.className = 'btn secundario'; copy.textContent = 'Copiar enlace';
       copy.addEventListener('click', () => copiar(pase.url));
-      acciones.append(link('Ver / descargar pase', pase.url, true), link('Enviar por WhatsApp', enlaceWhatsApp([pase])), copy);
+      if (pase.activo !== false) acciones.append(link('Ver / descargar pase', pase.url, true), link('Enviar por WhatsApp', enlaceWhatsApp([pase])), copy);
+      const retirar = document.createElement('button'); retirar.type = 'button'; retirar.className = 'btn secundario'; retirar.textContent = pase.activo === false ? 'Restaurar pase' : 'Retirar pase';
+      retirar.addEventListener('click', () => cambiarEstado(pase)); acciones.append(retirar);
       persona.append(nombre, detail, estado, acciones); section.append(persona);
     }
     $('familias-pases').append(section);
@@ -58,7 +78,7 @@ async function cargar() {
   try {
     const response = await fetch('/api/recepcion', {
       method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + clave },
-      body: JSON.stringify({ accion: 'pases' }), signal: AbortSignal.timeout(25000)
+      body: JSON.stringify({ accion: 'pases', incluirRetirados: $('mostrar-retirados').checked }), signal: AbortSignal.timeout(25000)
     });
     const data = await response.json();
     if (response.status === 401) salir();
@@ -74,4 +94,5 @@ $('acceso-pases').addEventListener('submit', async event => {
 });
 $('actualizar-pases').addEventListener('click', cargar);
 $('buscar-pases').addEventListener('input', render);
+$('mostrar-retirados').addEventListener('change', cargar);
 $('salir-pases').addEventListener('click', () => { salir(); status('Sesión cerrada.'); });
