@@ -31,6 +31,7 @@
           event.target.setVolume(35);
           const frame = event.target.getIframe();
           frame.title = 'Maná · Bendita Tu Luz · Video oficial';
+          frame.setAttribute('tabindex', '-1');
           frame.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen');
           message.textContent = 'Puedes pausar o reproducir la música mientras recorres la invitación.';
           if (requested) reproducir();
@@ -44,7 +45,7 @@
         onAutoplayBlocked: () => {
           if (ready && player.getPlayerState() === YT.PlayerState.PLAYING) return;
           estado(false);
-          message.textContent = 'Toca «Reproducir música» o el video para escuchar nuestra canción.';
+          message.textContent = 'Toca «Reproducir música» para escuchar nuestra canción.';
         },
         onError: () => {
           estado(false); control.disabled = true;
