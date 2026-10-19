@@ -87,6 +87,10 @@ section:nth-of-type(3)::before,section:nth-of-type(7)::before,section:last-of-ty
 @media print{#intro{display:none}body.lock{overflow:visible}.reveal{opacity:1;transform:none}section{break-inside:avoid}}
 .foto-principal{display:block;width:100%;height:auto;aspect-ratio:1600/1066;object-fit:contain;margin:22px auto 28px;border:5px solid #fcfaf5;box-shadow:0 10px 28px #28301d30}
 .galeria-fotos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:30px}.galeria-fotos figure{margin:0;padding:5px;background:var(--card);border:1px solid var(--line);align-self:start}.galeria-fotos img{display:block;width:100%;height:auto}.galeria-fotos figure:last-child{grid-column:1 / -1;width:75%;justify-self:center}@media(max-width:480px){.galeria-fotos{grid-template-columns:1fr;gap:22px}.galeria-fotos figure:last-child{width:100%}}
+
+#confirmacion{width:min(540px,calc(100% - 32px));max-height:90dvh;overflow:auto;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:32px 24px;text-align:left;box-shadow:0 20px 80px #0004}
+#confirmacion::backdrop{background:#262d20b8}#confirmacion h2{text-align:center;font-size:2.8rem;margin:12px 0 24px}#confirmacion label{display:block;margin:18px 0 6px;font-weight:600}#confirmacion textarea,#confirmacion select{display:block;width:100%;padding:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;border-radius:0}#confirmacion textarea{min-height:110px;resize:vertical}.cerrar-confirmacion{display:block;margin-left:auto;background:none;border:0;font:inherit;color:var(--accent);cursor:pointer}.acciones-rsvp{display:grid;gap:12px;margin-top:24px}.acciones-rsvp .btn{margin:0;width:100%;cursor:pointer;line-height:1.6}.nota-rsvp{font-size:1rem;line-height:1.4;margin-top:18px}button.btn{cursor:pointer}
+
 </style>
 </head>
 <body class="lock">
@@ -192,7 +196,7 @@ section:nth-of-type(3)::before,section:nth-of-type(7)::before,section:last-of-ty
   <p>¡Nos encantará compartir contigo este día tan especial!</p>
   <p>Agradecemos confirmar tu asistencia antes del <b>1 de noviembre de 2026</b>.</p>
   <!-- Cambia el número (52 + 10 dígitos) -->
-  <a class="btn" target="_blank" rel="noopener" id="rsvp" href="https://wa.me/52XXXXXXXXXX?text=Hola%2C%20confirmo%20mi%20asistencia%20a%20la%20boda%20de%20Paola%20y%20Edgar.">Confirmar por WhatsApp</a>
+  <button class="btn" type="button" id="rsvp">Confirmar asistencia</button>
 </section>
 
 <section class="reveal">
@@ -230,6 +234,53 @@ section:nth-of-type(3)::before,section:nth-of-type(7)::before,section:last-of-ty
   }else{els.forEach(function(el){el.classList.add('in')})}
 })();
 </script>
+
+<dialog id="confirmacion" aria-labelledby="titulo-confirmacion">
+  <button type="button" class="cerrar-confirmacion" aria-label="Cerrar confirmación">Cerrar ×</button>
+  <h2 id="titulo-confirmacion">Confirma tu asistencia</h2>
+  <form id="form-confirmacion">
+    <label for="nombres-invitados">Nombres de los invitados que asistirán</label>
+    <textarea id="nombres-invitados" name="nombres" required maxlength="1500" placeholder="Escribe el nombre y apellido de cada invitado, uno por línea"></textarea>
+    <label for="relacion-invitados">¿De parte de quién nos acompañan?</label>
+    <select id="relacion-invitados" name="relacion" required>
+      <option value="">Selecciona una opción</option>
+      <option>Familiares de la novia</option>
+      <option>Familiares del novio</option>
+      <option>Amigos de la novia</option>
+      <option>Amigos del novio</option>
+      <option>Familiares de ambos</option>
+      <option>Amigos de ambos</option>
+    </select>
+    <p class="nota-rsvp">Elige uno de los dos números para enviar tu confirmación. WhatsApp abrirá el mensaje con tus datos; pulsa Enviar para completarla.</p>
+    <div class="acciones-rsvp">
+      <button class="btn" type="submit" value="528119931332">Enviar al 81 1993 1332</button>
+      <button class="btn" type="submit" value="528135910620">Enviar al 81 3591 0620</button>
+    </div>
+    <p id="estado-confirmacion" class="nota-rsvp" role="status"></p>
+  </form>
+</dialog>
+<script>
+(function(){
+  const modal = document.getElementById('confirmacion');
+  const form = document.getElementById('form-confirmacion');
+  document.getElementById('rsvp').addEventListener('click',function(){modal.showModal()});
+  modal.querySelector('.cerrar-confirmacion').addEventListener('click',function(){modal.close()});
+  form.addEventListener('submit',function(event){
+    event.preventDefault();
+    const names = document.getElementById('nombres-invitados');
+    if(!names.value.trim()){names.setCustomValidity('Escribe los nombres de quienes asistirán.');names.reportValidity();return;}
+    names.setCustomValidity('');
+    const number = event.submitter && event.submitter.value;
+    if(!['528119931332','528135910620'].includes(number))return;
+    const relationship = document.getElementById('relacion-invitados').value;
+    const message = '¡Hola! Confirmamos nuestra asistencia a la boda de Paola y Edgar, el 29 de noviembre de 2026.\n\nInvitados:\n' + names.value.trim() + '\n\nSomos: ' + relationship + '.';
+    window.open('https://wa.me/' + number + '?text=' + encodeURIComponent(message),'_blank','noopener,noreferrer');
+    document.getElementById('estado-confirmacion').textContent='Completa el envío en WhatsApp para que los novios reciban tu confirmación.';
+  });
+  document.getElementById('nombres-invitados').addEventListener('input',function(){this.setCustomValidity('')});
+})();
+</script>
+
 </body>
 </html>
 

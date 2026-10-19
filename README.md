@@ -7,8 +7,8 @@ Invitación de boda estática con portada, galería, mapas y cuenta regresiva.
 Importar este repositorio y seleccionar **Other** como Framework Preset.
 No se necesita instalación ni comando de compilación. El directorio de salida es la raíz del proyecto (`.`).
 
-## Pendiente de personalizar
+## Confirmaciones
 
-Reemplazar `52XXXXXXXXXX` en `index.html` por el número de WhatsApp de confirmación.
+El formulario solicita los nombres y la relación con los novios. Permite enviar la confirmación por WhatsApp al 81 1993 1332 o al 81 3591 0620. El invitado debe pulsar Enviar en WhatsApp; no hay base de datos de confirmaciones.
 
 Las fotografías están en `assets/` y los adornos están integrados en el HTML.
