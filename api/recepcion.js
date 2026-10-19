@@ -1,5 +1,5 @@
 import { neon } from '@neondatabase/serverless';
-import { autorizarRecepcion, extraerToken, prepararRecepcion, validarEntrada, resumenEntradas } from '../lib/recepcion.js';
+import { autorizarRecepcion, extraerToken, prepararRecepcion, validarEntrada, resumenEntradas, listarLlegadas } from '../lib/recepcion.js';
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -12,17 +12,21 @@ export default async function handler(req, res) {
   let body;
   try { body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body; }
   catch { return res.status(400).json({ error: 'Solicitud inválida.' }); }
-  if (!['resumen', 'consultar', 'registrar'].includes(body?.accion)) return res.status(400).json({ error: 'Acción inválida.' });
+  if (!['resumen', 'llegadas', 'consultar', 'registrar'].includes(body?.accion)) return res.status(400).json({ error: 'Acción inválida.' });
   const connection = process.env.DATABASE_URL || process.env.POSTGRES_URL;
   if (!connection) return res.status(503).json({ error: 'No se pudo conectar. Intenta nuevamente.' });
   try {
     const sql = neon(connection);
     await prepararRecepcion(sql);
-    if (body.accion === 'resumen') return res.json({ ok: true, resumen: await resumenEntradas(sql) });
+    if (['resumen', 'llegadas'].includes(body.accion)) {
+      const [resumen, llegadas] = await Promise.all([resumenEntradas(sql), listarLlegadas(sql)]);
+      return res.json({ ok: true, resumen, llegadas });
+    }
     const token = extraerToken(body.qr);
     if (!token) return res.status(400).json({ error: 'Este QR no corresponde a un pase de esta boda.' });
     const pase = await validarEntrada(sql, token, body.accion === 'registrar');
-    return res.json({ ok: true, pase, resumen: await resumenEntradas(sql) });
+    return res.json({ ok: true, pase, resumen: await resumenEntradas(sql),
+      ...(body.accion === 'registrar' ? { llegadas: await listarLlegadas(sql) } : {}) });
   } catch {
     console.error('Error en el control de recepción.');
     return res.status(503).json({ error: 'No pudimos verificar la entrada. Revisa la conexión y vuelve a intentar.' });

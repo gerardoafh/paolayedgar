@@ -1,6 +1,30 @@
 import QrScanner from './vendor/qr-scanner.min.js';
 const $ = id => document.getElementById(id);
 let clave = '', qrActual = '', ocupado = false, scanner;
+let llegadas = [], refrescando = false;
+const normalizar = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+function mostrarLlegadas() {
+  const filtro = normalizar($('buscar-llegadas').value.trim());
+  const lista = llegadas.filter(pase => normalizar(pase.nombre).includes(filtro));
+  $('total-llegadas').textContent = $('cuenta-recibidos').textContent;
+  $('lista-llegadas').replaceChildren();
+  for (const pase of lista) {
+    const row = document.createElement('tr');
+    const values = [pase.nombre, new Date(pase.fecha_entrada).toLocaleString('es-MX', { timeZone: 'America/Mexico_City', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }), pase.id.slice(0, 8).toUpperCase()];
+    for (const value of values) { const cell = document.createElement('td'); cell.textContent = value; row.append(cell); }
+    $('lista-llegadas').append(row);
+  }
+  $('estado-llegadas').textContent = !llegadas.length ? 'Todavía no se han registrado entradas.'
+    : !lista.length ? 'No hay llegadas que coincidan con ese nombre.'
+    : `${lista.length} ${lista.length === 1 ? 'persona en la lista' : 'personas en la lista'}.` + (llegadas.length === 1000 ? ' Se muestran las 1000 llegadas más recientes.' : '');
+}
+async function actualizarLlegadas() {
+  if (!clave || refrescando) return;
+  refrescando = true; $('actualizar-llegadas').disabled = true;
+  try { await api('llegadas'); }
+  catch (error) { $('estado-llegadas').textContent = 'No se pudo actualizar la lista: ' + error.message; }
+  finally { refrescando = false; $('actualizar-llegadas').disabled = false; }
+}
 const status = text => $('estado-recepcion').textContent = text;
 const resumen = data => {
   if (data) { $('cuenta-confirmados').textContent = data.confirmados; $('cuenta-recibidos').textContent = data.recibidos; }
@@ -13,7 +37,9 @@ async function api(accion, qr) {
   const data = await response.json();
   if (response.status === 401) salir();
   if (!response.ok) throw new Error(data.error || 'No se pudo verificar el pase.');
-  resumen(data.resumen); return data;
+  resumen(data.resumen);
+  if (data.llegadas) { llegadas = data.llegadas; mostrarLlegadas(); }
+  return data;
 }
 function detener() {
   scanner?.stop(); $('marco-camara').hidden = true;
@@ -23,6 +49,7 @@ function salir() {
   detener(); clave = ''; qrActual = ''; $('clave-recepcion').value = '';
   $('panel-recepcion').hidden = true; $('acceso-recepcion').hidden = false;
   $('resultado-entrada').hidden = true;
+  llegadas = []; $('lista-llegadas').replaceChildren(); $('buscar-llegadas').value = '';
 }
 function resultado(pase) {
   const textos = {
@@ -94,3 +121,7 @@ $('siguiente-pase').addEventListener('click', () => { qrActual = ''; $('resultad
 $('cerrar-recepcion').addEventListener('click', () => { salir(); status('Sesión cerrada.'); });
 document.addEventListener('visibilitychange', () => { if (document.hidden) detener(); });
 window.addEventListener('pagehide', () => scanner?.destroy());
+$('buscar-llegadas').addEventListener('input', mostrarLlegadas);
+$('actualizar-llegadas').addEventListener('click', actualizarLlegadas);
+$('panel-llegadas').addEventListener('toggle', () => { if ($('panel-llegadas').open) actualizarLlegadas(); });
+setInterval(() => { if (!document.hidden && $('panel-llegadas').open && !$('panel-recepcion').hidden) actualizarLlegadas(); }, 20000);
