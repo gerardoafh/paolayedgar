@@ -1,5 +1,6 @@
 import { neon } from '@neondatabase/serverless';
 import { validarConfirmacion, guardarConfirmacion } from '../lib/confirmaciones.js';
+import { generarPases } from '../lib/pases.js';
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -23,8 +24,15 @@ export default async function handler(req, res) {
   const connection = process.env.DATABASE_URL || process.env.POSTGRES_URL;
   if (!connection) return res.status(503).json({ error: 'No pudimos guardar tu confirmación. Intenta de nuevo en unos minutos.' });
   try {
-    const id = await guardarConfirmacion(neon(connection), datos);
-    return res.status(200).json({ ok: true, id });
+    const sql = neon(connection);
+    const id = await guardarConfirmacion(sql, datos);
+    try {
+      const pases = await generarPases(sql, datos);
+      return res.status(200).json({ ok: true, id, pases });
+    } catch {
+      console.error('Confirmación guardada; no se pudieron generar los pases.');
+      return res.status(200).json({ ok: true, id, pases: [], pasesPendientes: true });
+    }
   } catch {
     console.error('No se pudo guardar una confirmación en Postgres.');
     return res.status(503).json({ error: 'No pudimos guardar tu confirmación. Tus datos siguen aquí; intenta de nuevo.' });

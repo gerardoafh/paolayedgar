@@ -17,3 +17,9 @@ Se guardan nombres, número de invitados, relación con los novios, WhatsApp ele
 ## Pruebas
 
 `npm test`
+
+## Pases digitales
+
+Al confirmar se genera un pase por cada nombre (uno por línea). Los enlaces aparecen en el formulario y abren `/pase#token`. Cada pase se descarga como PNG e incluye QR para consultar su estado. El QR no marca entradas usadas ni evita reutilización; no hay control de acceso por escaneo.
+
+La tabla `pases_boda` guarda los pases. Al modificar una confirmación se actualizan los nombres de sus posiciones y se desactivan los pases sobrantes. La invitación no integra Apple Wallet ni Google Wallet. Los enlaces son personales: quien tenga el enlace puede ver el nombre y descargar el pase.

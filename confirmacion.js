@@ -4,6 +4,7 @@
   const status = document.getElementById('estado-confirmacion');
   const continuar = document.getElementById('continuar-whatsapp');
   const names = document.getElementById('nombres-invitados');
+  const listaPases = document.getElementById('lista-pases');
   let requestId = crypto.randomUUID();
   let busy = false;
   document.getElementById('rsvp').addEventListener('click', () => modal.showModal());
@@ -12,6 +13,7 @@
     field.addEventListener('input', () => {
       names.setCustomValidity('');
       continuar.hidden = true;
+      listaPases.hidden = true;
       status.textContent = '';
     });
   }
@@ -31,6 +33,7 @@
     busy = true;
     buttons.forEach(button => button.disabled = true);
     continuar.hidden = true;
+    listaPases.hidden = true;
     status.textContent = 'Guardando tu confirmación…';
     try {
       const response = await fetch('/api/confirmaciones', {
@@ -44,6 +47,26 @@
       continuar.textContent = 'Continuar por WhatsApp';
       continuar.hidden = false;
       status.textContent = '¡Tu asistencia quedó registrada! Si deseas, también puedes avisarnos por WhatsApp.';
+      listaPases.replaceChildren();
+      if (result.pases?.length) {
+        const heading = document.createElement('h3');
+        heading.textContent = result.pases.length === 1 ? 'Tu pase digital' : 'Sus pases digitales';
+        const help = document.createElement('p');
+        help.textContent = 'Hay un pase por persona. Abre cada uno y guárdalo como imagen para el día de la boda.';
+        listaPases.append(heading, help);
+        for (const pase of result.pases) {
+          if (typeof pase.url !== 'string' || !/^\/pase#[a-f0-9]{64}$/.test(pase.url)) continue;
+          const link = document.createElement('a');
+          link.href = pase.url; link.target = '_blank'; link.rel = 'noopener noreferrer';
+          link.append(document.createTextNode(pase.nombre));
+          const label = document.createElement('span');
+          label.textContent = 'VER Y DESCARGAR PASE · ' + pase.codigo;
+          link.append(label); listaPases.append(link);
+        }
+        listaPases.hidden = false;
+      } else if (result.pasesPendientes) {
+        status.textContent = 'Tu asistencia está registrada. No pudimos generar los pases todavía; pulsa Confirmar nuevamente para reintentar sin duplicar el registro.';
+      }
     } catch (error) {
       status.textContent = error.name === 'TimeoutError' || error instanceof TypeError
         ? 'No pudimos comprobar el registro. Revisa tu conexión y vuelve a intentar; tus datos siguen aquí.'
