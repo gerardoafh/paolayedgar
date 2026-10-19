@@ -1,0 +1,16 @@
+<!DOCTYPE html><html lang="es" data-theme="light"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#69734c">
+<title>Recepción · Paola y Edgar</title><link rel="stylesheet" href="invitacion.css"><link rel="stylesheet" href="recepcion.css">
+</head><body><main class="recepcion">
+<header><span class="eyebrow">PAOLA Y EDGAR · 29 NOV 2026</span><h1>Recepción</h1><p>Control de entrada de invitados</p></header>
+<form id="acceso-recepcion"><label for="clave-recepcion">Clave del personal de recepción</label><input id="clave-recepcion" type="password" required autocomplete="current-password"><button class="btn" type="submit">Entrar</button></form>
+<p id="estado-recepcion" role="status" aria-live="polite"></p>
+<div id="panel-recepcion" hidden>
+  <div class="resumen"><div><strong id="cuenta-confirmados">—</strong><span>Pases activos</span></div><div><strong id="cuenta-recibidos">—</strong><span>Entradas registradas</span></div></div>
+  <div class="opciones"><button id="camara-iniciar" type="button" class="btn">Escanear con cámara</button><button id="camara-detener" type="button" class="btn secundario" hidden>Detener cámara</button><label class="btn secundario" for="imagen-qr">Leer QR de una imagen</label><input id="imagen-qr" type="file" accept="image/*" hidden></div>
+  <div id="marco-camara" hidden><video id="video-qr" playsinline muted></video><p>Coloca el QR dentro del recuadro.</p></div>
+  <form id="consulta-manual"><label for="enlace-qr">O pega el enlace del pase</label><div><input type="text" id="enlace-qr" placeholder="https://paola-edgar.vercel.app/pase#…" required autocomplete="off"><button class="btn secundario" type="submit">Consultar</button></div></form>
+  <article id="resultado-entrada" hidden aria-live="polite"><p id="etiqueta-entrada"></p><h2 id="nombre-entrada"></h2><p id="detalle-entrada"></p><button id="registrar-entrada" class="btn" type="button" hidden>Registrar entrada · 1 persona</button><a id="avisar-llegada" class="btn" target="_blank" rel="noopener noreferrer" hidden>Avisar llegada por WhatsApp</a><p id="ayuda-aviso" class="ayuda" hidden>El mensaje se dirige al 81 3591 0620. Pulsa Enviar en WhatsApp para completar el aviso.</p><button id="siguiente-pase" class="btn secundario" type="button">Siguiente pase</button></article>
+  <p class="ayuda">Escanear consulta el pase. Pulsa «Registrar entrada» para admitir a la persona. Los pases usados se señalan y no vuelven a registrar otra entrada. Se necesita conexión a internet.</p>
+  <button id="cerrar-recepcion" class="salir" type="button">Cerrar sesión</button>
+</div></main><script src="recepcion.js" type="module"></script></body></html>
