@@ -14,7 +14,7 @@
   function mostrarControl() { control.hidden = false; reproducir(); }
   document.getElementById('abrir-sobre').addEventListener('click', mostrarControl, { once: true });
   control.addEventListener('click', () => {
-    if (playing) { requested = false; player.pauseVideo(); }
+    if (ready && player.getPlayerState() === YT.PlayerState.PLAYING) { requested = false; player.pauseVideo(); estado(false); }
     else reproducir();
   });
   window.onYouTubeIframeAPIReady = () => {
@@ -36,10 +36,13 @@
           if (requested) reproducir();
         },
         onStateChange: event => {
-          estado(event.data === YT.PlayerState.PLAYING);
+          if (event.data === YT.PlayerState.PLAYING) estado(true);
+          else if ([YT.PlayerState.PAUSED, YT.PlayerState.ENDED, YT.PlayerState.CUED].includes(event.data)) estado(false);
           if (event.data === YT.PlayerState.PLAYING) message.textContent = 'Escuchando Bendita Tu Luz · Maná';
+          if (event.data === YT.PlayerState.PAUSED) message.textContent = 'Música en pausa. Puedes continuar cuando quieras.';
         },
         onAutoplayBlocked: () => {
+          if (ready && player.getPlayerState() === YT.PlayerState.PLAYING) return;
           estado(false);
           message.textContent = 'Toca «Reproducir música» o el video para escuchar nuestra canción.';
         },
@@ -56,4 +59,11 @@
     message.textContent = 'El reproductor no pudo cargar. Puedes escuchar la canción desde el enlace de YouTube.';
   };
   document.head.append(script);
+  setInterval(() => {
+    if (ready) {
+      const current = player.getPlayerState();
+      if (current === YT.PlayerState.PLAYING) estado(true);
+      else if ([YT.PlayerState.PAUSED, YT.PlayerState.ENDED, YT.PlayerState.CUED].includes(current)) estado(false);
+    }
+  }, 1500);
 })();
