@@ -31,3 +31,7 @@ La tabla `pases_boda` guarda los pases. Al modificar una confirmación se actual
 Consultar un pase no registra su uso. Registrar entrada actualiza `pases_boda.fecha_entrada` de forma atómica e impide duplicados. Después aparece un botón para avisar por WhatsApp al 81 3591 0620; el personal debe pulsar Enviar en WhatsApp. No se envían avisos automáticos ni se cobran servicios de mensajería.
 
 El lector de cámara necesita HTTPS y permiso del dispositivo. La lectura de imágenes se hace en el navegador.
+
+## Música
+
+La invitación incorpora el video oficial de Maná «Bendita Tu Luz» mediante el reproductor de YouTube. Al abrir el sobre se intenta iniciar la música a volumen moderado; si el navegador bloquea el inicio, el invitado puede tocar Reproducir música. El botón flotante permite pausar o continuar.
