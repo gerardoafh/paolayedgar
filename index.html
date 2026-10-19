@@ -1,150 +1,30 @@
-<!DOCTYPE html>
-<html lang="es" data-theme="light">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Paola &amp; Edgar · Nos casamos</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&amp;family=Great+Vibes&amp;display=swap" rel="stylesheet">
-<style>
-:root{--bg:#f7f1ea;--card:#fffaf4;--ink:#4a3f38;--accent:#6b7342;--olive-soft:#e6e9d3;--rose:#e3a9ae;--rose-deep:#c97b84;--line:#ddd3bf;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#262620;--card:#31312a;--ink:#efe9dc;--accent:#b4bb85;--olive-soft:#2f3326;--rose:#d9a0a6;--rose-deep:#e3a1a8;--line:#48483c}}
-:root[data-theme="dark"]{--bg:#262620;--card:#31312a;--ink:#efe9dc;--accent:#b4bb85;--olive-soft:#2f3326;--rose:#d9a0a6;--rose-deep:#e3a1a8;--line:#48483c}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"Cormorant Garamond",Georgia,serif;font-size:19px;line-height:1.6;text-align:center}
-body.lock{overflow:hidden}
-.script{font-family:"Great Vibes","Brush Script MT",cursive;font-weight:400;color:var(--rose-deep)}
-section{max-width:560px;margin:0 auto;padding:56px 26px;border-bottom:1px solid var(--line)}
-section:last-of-type{border:0}
-section:nth-of-type(even){background:var(--olive-soft);box-shadow:0 0 0 100vmax var(--olive-soft);clip-path:inset(0 -100vmax);border-color:transparent}
-h2::after{content:"";display:block;width:46px;height:2px;background:var(--rose);margin:12px auto 0}
-h2{font-weight:600;letter-spacing:.28em;font-size:1.05rem;text-transform:uppercase;color:var(--accent);margin:0 0 18px}
-p{margin:0 0 14px}
-.big{font-size:3.4rem;line-height:1.1;margin:8px 0}
-.small{font-size:.95rem;letter-spacing:.2em;text-transform:uppercase}
-.verse{font-style:italic;max-width:420px;margin:26px auto}
-.orn{color:var(--rose);font-size:1.6rem;letter-spacing:.5em;margin:10px 0}
-.btn{display:inline-block;margin-top:10px;padding:12px 26px;border:1px solid var(--accent);color:var(--accent);text-decoration:none;letter-spacing:.2em;font-size:.85rem;text-transform:uppercase;border-radius:40px;transition:.25s;background:transparent}
-.btn:hover{background:var(--accent);color:var(--bg)}
-.time{font-size:2.2rem;font-weight:600;color:var(--ink);margin:6px 0}
-.place{font-size:1.4rem;font-weight:600}
-.card{background:var(--card);border:1px solid var(--line);border-radius:6px;border-top:3px solid var(--rose);padding:22px 18px;margin:14px 0}
-.pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media(max-width:480px){.pair{grid-template-columns:1fr}}
-.tl{list-style:none;margin:0;padding:0;text-align:left}
-.tl li{display:grid;grid-template-columns:96px 1fr;gap:14px;padding:12px 0;border-bottom:1px dashed var(--line)}
-.tl b{color:var(--accent);font-weight:600}
-.cd{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px}
-.cd div{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:14px 4px}
-.cd strong{display:block;font-size:2rem;color:var(--accent);font-weight:600}
-.cd span{font-size:.7rem;letter-spacing:.15em;text-transform:uppercase}
-.reveal{opacity:0;transform:translateY(24px);transition:opacity .9s,transform .9s}
-.reveal.in{opacity:1;transform:none}
-
-/* ENVELOPE */
-#intro{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;transition:opacity 1s .9s,visibility 0s 1.9s}
-#intro.open{opacity:0;visibility:hidden}
-.env{position:relative;width:min(320px,82vw);aspect-ratio:1.5;cursor:pointer;filter:drop-shadow(0 12px 22px rgba(0,0,0,.18))}
-.env .back{position:absolute;inset:0;background:#a3aa72;border-radius:4px}
-.env .paper{position:absolute;left:7%;right:7%;top:8%;bottom:8%;background:var(--card);border-radius:3px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .9s .5s;z-index:2;color:var(--ink)}
-.env .paper .script{font-size:1.9rem}
-.env .front{position:absolute;inset:0;z-index:3;background:
- linear-gradient(to top right,transparent 49.5%,#9aa168 50%) left/50% 100% no-repeat,
- linear-gradient(to top left,transparent 49.5%,#9aa168 50%) right/50% 100% no-repeat;
- clip-path:polygon(0 0,50% 58%,100% 0,100% 100%,0 100%);background-color:#bcc38f;border-radius:4px}
-.env .flap{position:absolute;left:0;right:0;top:0;height:60%;z-index:4;background:#adb47c;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .7s,z-index 0s .35s}
-.seal{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:#d4838d;z-index:5;color:#fff;display:flex;align-items:center;justify-content:center;font-family:"Great Vibes",cursive;font-size:1.3rem;transition:opacity .3s;box-shadow:0 2px 6px rgba(0,0,0,.3)}
-#intro.open .flap{transform:rotateX(180deg);z-index:1}
-#intro.open .seal{opacity:0}
-#intro.open .paper{transform:translateY(-62%) scale(1.08)}
-.hint{letter-spacing:.3em;font-size:.8rem;text-transform:uppercase;animation:pulse 1.8s infinite}
-@keyframes pulse{50%{opacity:.35}}
-@media(prefers-reduced-motion:reduce){*{transition-duration:.01s!important;animation:none!important}}
-:root,:root[data-theme="dark"]{color-scheme:light;--bg:#f8f5ed;--card:#fcfaf5;--ink:#454936;--accent:#687044;--olive-soft:#e8eadc;--rose:#ddb9b5;--rose-deep:#a96e74;--line:#d7d9c7}
-body{background:var(--bg) url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjY1IiBudW1PY3RhdmVzPSIzIiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGZpbGw9IiNmOGY1ZWQiIGQ9Ik0wIDBoMjAwdjIwMEgweiIvPjxwYXRoIGZpbHRlcj0idXJsKCNuKSIgb3BhY2l0eT0iLjA1NSIgZD0iTTAgMGgyMDB2MjAwSDB6Ii8+PC9zdmc+Cg==');font-size:21px}
-section{position:relative;isolation:isolate;max-width:680px;padding:76px 58px;border:0}
-section:nth-of-type(even){background:transparent;box-shadow:none;clip-path:none}
-section::after{content:"";display:block;width:70px;height:1px;margin:48px auto -34px;background:var(--line)}
-section:last-of-type::after{display:none}
-h2{font-family:"Great Vibes","Brush Script MT",cursive;font-size:3.4rem;font-weight:400;line-height:1.18;letter-spacing:0;text-transform:none;margin-bottom:30px}
-h2::after{height:1px;width:70px;background:var(--rose);margin-top:20px}
-.script{color:var(--accent)}.big{font-size:4.8rem;line-height:1.15}.small{font-size:.83rem;letter-spacing:.23em}
-#portada{padding:110px 55px 88px;min-height:880px;display:flex;flex-direction:column;justify-content:center;color:var(--card);background:var(--accent);overflow:hidden}
-#portada::before{content:"";position:absolute;inset:0;background:url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgNDAwIj48ZGVmcz48ZyBpZD0ibGVhZiI+PHBhdGggZD0iTTAgMEMtNDUtNDItNDItODIgMC0xMDBDMjUtNTcgMjMtMjcgMCAwWiIgZmlsbD0iI2U1ZThkNiIvPjxwYXRoIGQ9Ik0wIDBWLTg1IiBzdHJva2U9IiNhYWI0OGIiIGZpbGw9Im5vbmUiLz48L2c+PGcgaWQ9ImZsb3dlciIgZmlsbD0iI2RkYjliNSI+PGVsbGlwc2UgY3k9Ii0yMyIgcng9IjE1IiByeT0iMjciLz48ZWxsaXBzZSBjeT0iLTIzIiByeD0iMTUiIHJ5PSIyNyIgdHJhbnNmb3JtPSJyb3RhdGUoNzIpIi8+PGVsbGlwc2UgY3k9Ii0yMyIgcng9IjE1IiByeT0iMjciIHRyYW5zZm9ybT0icm90YXRlKDE0NCkiLz48ZWxsaXBzZSBjeT0iLTIzIiByeD0iMTUiIHJ5PSIyNyIgdHJhbnNmb3JtPSJyb3RhdGUoMjE2KSIvPjxlbGxpcHNlIGN5PSItMjMiIHJ4PSIxNSIgcnk9IjI3IiB0cmFuc2Zvcm09InJvdGF0ZSgyODgpIi8+PGNpcmNsZSByPSIxMCIgZmlsbD0iI2Y1ZWRkOCIvPjxjaXJjbGUgcj0iNCIgZmlsbD0iIzhlOTU2NyIvPjwvZz48L2RlZnM+PGcgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjYzZjZWFhIiBzdHJva2Utd2lkdGg9IjMiPjxwYXRoIGQ9Ik0xNDUgMzkwUTExNSAyMzAgMTc1IDQwTTE0MyAzNDVRNjUgMjcwIDI2IDE1ME0xNDAgMzAwUTIyMCAyMzAgMjY1IDEyME0xNDUgMjIyUTcyIDE1MCA4MCAzOCIvPjwvZz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNTEgMzIwKSByb3RhdGUoNTUpIHNjYWxlKC43NSkiLz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMjcgMjc1KSByb3RhdGUoLTQ4KSBzY2FsZSguOSkiLz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNDcgMjM0KSByb3RhdGUoNDMpIHNjYWxlKC44NSkiLz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNDcgMTcwKSByb3RhdGUoLTMwKSBzY2FsZSguOCkiLz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNjMgMTEwKSByb3RhdGUoMjApIHNjYWxlKC43KSIvPjx1c2UgaHJlZj0iI2xlYWYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDc3IDI1Mykgcm90YXRlKC02MCkgc2NhbGUoLjcpIi8+PHVzZSBocmVmPSIjbGVhZiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTQgMjA4KSByb3RhdGUoLTE4KSBzY2FsZSguNjUpIi8+PHVzZSBocmVmPSIjbGVhZiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTk4IDIzOSkgcm90YXRlKDY4KSBzY2FsZSguNzUpIi8+PHVzZSBocmVmPSIjbGVhZiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjM1IDE4NCkgcm90YXRlKDI1KSBzY2FsZSguNikiLz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMTAgMTUwKSByb3RhdGUoLTU1KSBzY2FsZSguNikiLz48dXNlIGhyZWY9IiNmbG93ZXIiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEyMCAyODUpIHNjYWxlKC45KSIvPjx1c2UgaHJlZj0iI2Zsb3dlciIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTg0IDIxOCkgc2NhbGUoLjYpIi8+PHVzZSBocmVmPSIjZmxvd2VyIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4OCAxNTQpIHNjYWxlKC40KSIvPjwvc3ZnPgo=') left -90px top -60px/300px auto no-repeat,url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgNDAwIj48ZGVmcz48ZyBpZD0ibGVhZiI+PHBhdGggZD0iTTAgMEMtNDUtNDItNDItODIgMC0xMDBDMjUtNTcgMjMtMjcgMCAwWiIgZmlsbD0iI2U1ZThkNiIvPjxwYXRoIGQ9Ik0wIDBWLTg1IiBzdHJva2U9IiNhYWI0OGIiIGZpbGw9Im5vbmUiLz48L2c+PGcgaWQ9ImZsb3dlciIgZmlsbD0iI2RkYjliNSI+PGVsbGlwc2UgY3k9Ii0yMyIgcng9IjE1IiByeT0iMjciLz48ZWxsaXBzZSBjeT0iLTIzIiByeD0iMTUiIHJ5PSIyNyIgdHJhbnNmb3JtPSJyb3RhdGUoNzIpIi8+PGVsbGlwc2UgY3k9Ii0yMyIgcng9IjE1IiByeT0iMjciIHRyYW5zZm9ybT0icm90YXRlKDE0NCkiLz48ZWxsaXBzZSBjeT0iLTIzIiByeD0iMTUiIHJ5PSIyNyIgdHJhbnNmb3JtPSJyb3RhdGUoMjE2KSIvPjxlbGxpcHNlIGN5PSItMjMiIHJ4PSIxNSIgcnk9IjI3IiB0cmFuc2Zvcm09InJvdGF0ZSgyODgpIi8+PGNpcmNsZSByPSIxMCIgZmlsbD0iI2Y1ZWRkOCIvPjxjaXJjbGUgcj0iNCIgZmlsbD0iIzhlOTU2NyIvPjwvZz48L2RlZnM+PGcgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjYzZjZWFhIiBzdHJva2Utd2lkdGg9IjMiPjxwYXRoIGQ9Ik0xNDUgMzkwUTExNSAyMzAgMTc1IDQwTTE0MyAzNDVRNjUgMjcwIDI2IDE1ME0xNDAgMzAwUTIyMCAyMzAgMjY1IDEyME0xNDUgMjIyUTcyIDE1MCA4MCAzOCIvPjwvZz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNTEgMzIwKSByb3RhdGUoNTUpIHNjYWxlKC43NSkiLz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMjcgMjc1KSByb3RhdGUoLTQ4KSBzY2FsZSguOSkiLz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNDcgMjM0KSByb3RhdGUoNDMpIHNjYWxlKC44NSkiLz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNDcgMTcwKSByb3RhdGUoLTMwKSBzY2FsZSguOCkiLz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNjMgMTEwKSByb3RhdGUoMjApIHNjYWxlKC43KSIvPjx1c2UgaHJlZj0iI2xlYWYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDc3IDI1Mykgcm90YXRlKC02MCkgc2NhbGUoLjcpIi8+PHVzZSBocmVmPSIjbGVhZiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTQgMjA4KSByb3RhdGUoLTE4KSBzY2FsZSguNjUpIi8+PHVzZSBocmVmPSIjbGVhZiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTk4IDIzOSkgcm90YXRlKDY4KSBzY2FsZSguNzUpIi8+PHVzZSBocmVmPSIjbGVhZiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjM1IDE4NCkgcm90YXRlKDI1KSBzY2FsZSguNikiLz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMTAgMTUwKSByb3RhdGUoLTU1KSBzY2FsZSguNikiLz48dXNlIGhyZWY9IiNmbG93ZXIiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEyMCAyODUpIHNjYWxlKC45KSIvPjx1c2UgaHJlZj0iI2Zsb3dlciIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTg0IDIxOCkgc2NhbGUoLjYpIi8+PHVzZSBocmVmPSIjZmxvd2VyIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4OCAxNTQpIHNjYWxlKC40KSIvPjwvc3ZnPgo=') right -110px bottom -90px/350px auto no-repeat;opacity:.95;z-index:-1;pointer-events:none}
-#portada::after{position:absolute;inset:26px;border:1px solid #eeeed15c;background:none;width:auto;height:auto;margin:0;z-index:-1}
-#portada .big{color:#fffdf3;font-size:5.3rem;max-width:430px;margin:28px auto}#portada .orn{color:var(--rose);font-size:2.2rem}#portada .verse{font-size:1.22rem;margin:35px auto 22px}#portada p:last-child{max-width:420px;margin:0 auto}
-.card{border:0;background:transparent;border-radius:0;padding:18px 8px;margin:0}.pair{grid-template-columns:1fr;gap:12px}.pair .card:first-child::after{content:"&";font-family:"Great Vibes",cursive;display:block;font-size:2rem;color:var(--rose-deep);margin-top:22px}.pair .small{color:var(--accent);font-size:.75rem}.pair p:last-child{font-size:1.5rem;line-height:1.5}
-.btn{border-radius:0;background:var(--accent);color:#fffdf3;font-family:Georgia,serif;font-size:.68rem;letter-spacing:.17em;padding:15px 25px;margin-top:22px}.btn:hover{background:#515a35;color:white;transform:translateY(-2px)}.btn:focus-visible,.env:focus-visible{outline:3px solid var(--rose-deep);outline-offset:6px}
-.time{font-size:2.5rem;color:var(--accent);font-weight:400}.place{font-size:1.8rem;font-weight:400;line-height:1.2}
-section:nth-of-type(3)::before,section:nth-of-type(7)::before,section:last-of-type::before{content:"";display:block;width:160px;height:150px;background:url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgNDAwIj48ZGVmcz48ZyBpZD0ibGVhZiI+PHBhdGggZD0iTTAgMEMtNDUtNDItNDItODIgMC0xMDBDMjUtNTcgMjMtMjcgMCAwWiIgZmlsbD0iI2U1ZThkNiIvPjxwYXRoIGQ9Ik0wIDBWLTg1IiBzdHJva2U9IiNhYWI0OGIiIGZpbGw9Im5vbmUiLz48L2c+PGcgaWQ9ImZsb3dlciIgZmlsbD0iI2RkYjliNSI+PGVsbGlwc2UgY3k9Ii0yMyIgcng9IjE1IiByeT0iMjciLz48ZWxsaXBzZSBjeT0iLTIzIiByeD0iMTUiIHJ5PSIyNyIgdHJhbnNmb3JtPSJyb3RhdGUoNzIpIi8+PGVsbGlwc2UgY3k9Ii0yMyIgcng9IjE1IiByeT0iMjciIHRyYW5zZm9ybT0icm90YXRlKDE0NCkiLz48ZWxsaXBzZSBjeT0iLTIzIiByeD0iMTUiIHJ5PSIyNyIgdHJhbnNmb3JtPSJyb3RhdGUoMjE2KSIvPjxlbGxpcHNlIGN5PSItMjMiIHJ4PSIxNSIgcnk9IjI3IiB0cmFuc2Zvcm09InJvdGF0ZSgyODgpIi8+PGNpcmNsZSByPSIxMCIgZmlsbD0iI2Y1ZWRkOCIvPjxjaXJjbGUgcj0iNCIgZmlsbD0iIzhlOTU2NyIvPjwvZz48L2RlZnM+PGcgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjYzZjZWFhIiBzdHJva2Utd2lkdGg9IjMiPjxwYXRoIGQ9Ik0xNDUgMzkwUTExNSAyMzAgMTc1IDQwTTE0MyAzNDVRNjUgMjcwIDI2IDE1ME0xNDAgMzAwUTIyMCAyMzAgMjY1IDEyME0xNDUgMjIyUTcyIDE1MCA4MCAzOCIvPjwvZz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNTEgMzIwKSByb3RhdGUoNTUpIHNjYWxlKC43NSkiLz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMjcgMjc1KSByb3RhdGUoLTQ4KSBzY2FsZSguOSkiLz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNDcgMjM0KSByb3RhdGUoNDMpIHNjYWxlKC44NSkiLz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNDcgMTcwKSByb3RhdGUoLTMwKSBzY2FsZSguOCkiLz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNjMgMTEwKSByb3RhdGUoMjApIHNjYWxlKC43KSIvPjx1c2UgaHJlZj0iI2xlYWYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDc3IDI1Mykgcm90YXRlKC02MCkgc2NhbGUoLjcpIi8+PHVzZSBocmVmPSIjbGVhZiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTQgMjA4KSByb3RhdGUoLTE4KSBzY2FsZSguNjUpIi8+PHVzZSBocmVmPSIjbGVhZiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTk4IDIzOSkgcm90YXRlKDY4KSBzY2FsZSguNzUpIi8+PHVzZSBocmVmPSIjbGVhZiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjM1IDE4NCkgcm90YXRlKDI1KSBzY2FsZSguNikiLz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMTAgMTUwKSByb3RhdGUoLTU1KSBzY2FsZSguNikiLz48dXNlIGhyZWY9IiNmbG93ZXIiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEyMCAyODUpIHNjYWxlKC45KSIvPjx1c2UgaHJlZj0iI2Zsb3dlciIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTg0IDIxOCkgc2NhbGUoLjYpIi8+PHVzZSBocmVmPSIjZmxvd2VyIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4OCAxNTQpIHNjYWxlKC40KSIvPjwvc3ZnPgo=') center/contain no-repeat;margin:0 auto 25px}
-.tl{max-width:430px;margin:auto}.tl li{grid-template-columns:105px 1fr;padding:18px 0}.tl b{font-weight:400}.tl span{padding-left:16px;border-left:1px solid var(--rose)}
-.cd{gap:0;border-block:1px solid var(--line);padding:20px 0}.cd div{border:0;border-right:1px solid var(--line);background:transparent;border-radius:0;padding:0 4px}.cd div:last-child{border:0}.cd strong{font-size:2.8rem;font-weight:400}.cd span{font-size:.6rem}
-#intro{background:var(--bg) url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgNDAwIj48ZGVmcz48ZyBpZD0ibGVhZiI+PHBhdGggZD0iTTAgMEMtNDUtNDItNDItODIgMC0xMDBDMjUtNTcgMjMtMjcgMCAwWiIgZmlsbD0iI2U1ZThkNiIvPjxwYXRoIGQ9Ik0wIDBWLTg1IiBzdHJva2U9IiNhYWI0OGIiIGZpbGw9Im5vbmUiLz48L2c+PGcgaWQ9ImZsb3dlciIgZmlsbD0iI2RkYjliNSI+PGVsbGlwc2UgY3k9Ii0yMyIgcng9IjE1IiByeT0iMjciLz48ZWxsaXBzZSBjeT0iLTIzIiByeD0iMTUiIHJ5PSIyNyIgdHJhbnNmb3JtPSJyb3RhdGUoNzIpIi8+PGVsbGlwc2UgY3k9Ii0yMyIgcng9IjE1IiByeT0iMjciIHRyYW5zZm9ybT0icm90YXRlKDE0NCkiLz48ZWxsaXBzZSBjeT0iLTIzIiByeD0iMTUiIHJ5PSIyNyIgdHJhbnNmb3JtPSJyb3RhdGUoMjE2KSIvPjxlbGxpcHNlIGN5PSItMjMiIHJ4PSIxNSIgcnk9IjI3IiB0cmFuc2Zvcm09InJvdGF0ZSgyODgpIi8+PGNpcmNsZSByPSIxMCIgZmlsbD0iI2Y1ZWRkOCIvPjxjaXJjbGUgcj0iNCIgZmlsbD0iIzhlOTU2NyIvPjwvZz48L2RlZnM+PGcgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjYzZjZWFhIiBzdHJva2Utd2lkdGg9IjMiPjxwYXRoIGQ9Ik0xNDUgMzkwUTExNSAyMzAgMTc1IDQwTTE0MyAzNDVRNjUgMjcwIDI2IDE1ME0xNDAgMzAwUTIyMCAyMzAgMjY1IDEyME0xNDUgMjIyUTcyIDE1MCA4MCAzOCIvPjwvZz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNTEgMzIwKSByb3RhdGUoNTUpIHNjYWxlKC43NSkiLz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMjcgMjc1KSByb3RhdGUoLTQ4KSBzY2FsZSguOSkiLz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNDcgMjM0KSByb3RhdGUoNDMpIHNjYWxlKC44NSkiLz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNDcgMTcwKSByb3RhdGUoLTMwKSBzY2FsZSguOCkiLz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNjMgMTEwKSByb3RhdGUoMjApIHNjYWxlKC43KSIvPjx1c2UgaHJlZj0iI2xlYWYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDc3IDI1Mykgcm90YXRlKC02MCkgc2NhbGUoLjcpIi8+PHVzZSBocmVmPSIjbGVhZiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTQgMjA4KSByb3RhdGUoLTE4KSBzY2FsZSguNjUpIi8+PHVzZSBocmVmPSIjbGVhZiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTk4IDIzOSkgcm90YXRlKDY4KSBzY2FsZSguNzUpIi8+PHVzZSBocmVmPSIjbGVhZiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjM1IDE4NCkgcm90YXRlKDI1KSBzY2FsZSguNikiLz48dXNlIGhyZWY9IiNsZWFmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMTAgMTUwKSByb3RhdGUoLTU1KSBzY2FsZSguNikiLz48dXNlIGhyZWY9IiNmbG93ZXIiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEyMCAyODUpIHNjYWxlKC45KSIvPjx1c2UgaHJlZj0iI2Zsb3dlciIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTg0IDIxOCkgc2NhbGUoLjYpIi8+PHVzZSBocmVmPSIjZmxvd2VyIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4OCAxNTQpIHNjYWxlKC40KSIvPjwvc3ZnPgo=') right -80px bottom -50px/330px no-repeat}#intro::before{content:"Nuestra boda";font-family:"Great Vibes",cursive;font-size:3.6rem;color:var(--accent);margin-bottom:20px}.env .back{background:#687044}.env .front{background:linear-gradient(to top right,transparent 49.5%,#7d8559 50%) left/50% 100% no-repeat,linear-gradient(to top left,transparent 49.5%,#7d8559 50%) right/50% 100% no-repeat;background-color:#959d74}.env .flap{background:#858d60}.seal{background:var(--rose-deep)}.hint{color:var(--accent)}
-@media(min-width:700px){body{padding:30px 0}section{box-shadow:0 8px 50px #45493608}#portada{border-radius:230px 230px 0 0}#portada::after{border-radius:210px 210px 0 0}}
-@media(max-width:480px){section{padding:62px 28px}h2{font-size:2.9rem}.big{font-size:4rem}#portada{padding:85px 35px 70px;min-height:820px}#portada .big{font-size:4.4rem}#portada::before{background-size:230px,260px}body{font-size:20px}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-@media print{#intro{display:none}body.lock{overflow:visible}.reveal{opacity:1;transform:none}section{break-inside:avoid}}
-.foto-principal{display:block;width:100%;height:auto;aspect-ratio:1600/1066;object-fit:contain;margin:22px auto 28px;border:5px solid #fcfaf5;box-shadow:0 10px 28px #28301d30}
-.galeria-fotos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:30px}.galeria-fotos figure{margin:0;padding:5px;background:var(--card);border:1px solid var(--line);align-self:start}.galeria-fotos img{display:block;width:100%;height:auto}.galeria-fotos figure:last-child{grid-column:1 / -1;width:75%;justify-self:center}@media(max-width:480px){.galeria-fotos{grid-template-columns:1fr;gap:22px}.galeria-fotos figure:last-child{width:100%}}
-
-#confirmacion{width:min(540px,calc(100% - 32px));max-height:90dvh;overflow:auto;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:32px 24px;text-align:left;box-shadow:0 20px 80px #0004}
-#confirmacion::backdrop{background:#262d20b8}#confirmacion h2{text-align:center;font-size:2.8rem;margin:12px 0 24px}#confirmacion label{display:block;margin:18px 0 6px;font-weight:600}#confirmacion textarea,#confirmacion select{display:block;width:100%;padding:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;border-radius:0}#confirmacion textarea{min-height:110px;resize:vertical}.cerrar-confirmacion{display:block;margin-left:auto;background:none;border:0;font:inherit;color:var(--accent);cursor:pointer}.acciones-rsvp{display:grid;gap:12px;margin-top:24px}.acciones-rsvp .btn{margin:0;width:100%;cursor:pointer;line-height:1.6}.nota-rsvp{font-size:1rem;line-height:1.4;margin-top:18px}button.btn{cursor:pointer}
-
-</style>
-<link rel="stylesheet" href="rediseno.css">
-</head>
-<body class="lock">
-
-<div id="intro">
-  <div class="env" id="env" role="button" tabindex="0" aria-label="Abrir invitación">
-    <div class="back"></div>
-    <div class="paper"><span class="script">Paola &amp; Edgar</span><span class="small">29 · 11 · 2026</span></div>
-    <div class="front"></div>
-    <div class="flap"></div>
-    <div class="seal">P&amp;E</div>
-  </div>
-  <div class="hint">Toca para abrir</div>
-</div>
-
-<section id="portada">
-  <p class="small">Nuestra boda</p>
-  <div class="script big">Paola &amp; Edgar</div>
-<img class="foto-principal" src="assets/foto-1.webp" alt="Paola y Edgar tomados de la mano en un paisaje natural" width="1600" height="1066" fetchpriority="high">
-  <div class="orn">❦</div>
-  <p class="small">Domingo 29 de noviembre de 2026</p>
-  <p class="verse">“Y sobre todas estas cosas, vestíos de amor, que es el vínculo perfecto.”<br><b>Colosenses 3:14</b></p>
-  <p>Con la bendición de Dios y el amor de nuestras familias, nos llena de alegría invitarte a celebrar el inicio de esta nueva etapa juntos.</p>
-</section>
-
-<section class="reveal">
-  <h2>Nuestras familias</h2>
+<!DOCTYPE html><html lang="es" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#69734c"><meta name="description" content="Paola y Edgar · Nuestra boda · 29 de noviembre de 2026. Acompáñanos a celebrar y confirma tu asistencia."><title>Paola &amp; Edgar · Nuestra boda</title><link rel="stylesheet" href="invitacion.css"></head><body><main><section id="portada"><div class="portada-papel">
+<svg class="titulo-curvo" viewBox="0 0 400 125" role="img" aria-label="Nuestra boda"><defs><path id="arco-titulo" d="M30 120 Q200 -35 370 120"/></defs><text><textPath href="#arco-titulo" startOffset="50%" text-anchor="middle">NUESTRA BODA</textPath></text></svg>
+<h1>Paola y Edgar</h1>
+<img class="foto-principal" src="assets/foto-1.webp" width="1600" height="1066" fetchpriority="high" alt="Paola y Edgar tomados de la mano en un paisaje natural">
+<div class="fecha-portada"><strong>29</strong><span>NOVIEMBRE<br>2026</span></div><p class="dia-portada">DOMINGO · 5:00 P. M.</p>
+</div></section><section class="bienvenida"><svg class="ramito" viewBox="0 0 130 145" aria-hidden="true"><g fill="none" stroke="#7e8b5f" stroke-width="1.5"><path d="M64 140Q45 70 80 10M60 112Q22 82 22 48M59 94Q103 69 110 34"/></g><g fill="#99a47a"><ellipse cx="71" cy="28" rx="7" ry="16" transform="rotate(26 71 28)"/><ellipse cx="57" cy="52" rx="7" ry="17" transform="rotate(-32 57 52)"/><ellipse cx="73" cy="72" rx="7" ry="17" transform="rotate(45 73 72)"/><ellipse cx="36" cy="80" rx="7" ry="17" transform="rotate(-48 36 80)"/><ellipse cx="95" cy="61" rx="6" ry="14" transform="rotate(35 95 61)"/></g><g fill="#d9b4af"><ellipse cx="54" cy="99" rx="12" ry="20" transform="rotate(-25 54 99)"/><ellipse cx="62" cy="98" rx="12" ry="20" transform="rotate(25 62 98)"/><ellipse cx="58" cy="101" rx="20" ry="11"/><circle cx="58" cy="101" r="5" fill="#faf2db"/></g></svg><p class="verse">“Y sobre todas estas cosas, vestíos de amor, que es el vínculo perfecto.”<b>Colosenses 3:14</b></p><p>Con la bendición de Dios y el amor de nuestras familias, nos llena de alegría invitarte a celebrar el inicio de esta nueva etapa juntos.</p></section><section class="familias reveal">
+  <p class="intro-padres">Con la bendición, amor<br>y apoyo de nuestros</p><h2>Padres</h2>
   <div class="pair">
     <div class="card"><p class="small">Padres de la novia</p><p>Irma Hernández Guadarrama<br>Gerardo Flores Santos</p></div>
     <div class="card"><p class="small">Padres del novio</p><p>Juana María del Toro Lechuga<br>Francisco Aguilón Armendáriz</p></div>
   </div>
-</section>
-
-<section class="reveal">
+</section><section class="lugares reveal"><span class="eyebrow">El día que soñamos</span><h2>Ven a celebrar</h2><div class="venue-grid"><article class="venue"><svg class="venue-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M8 57h48M15 56V28l17-13 17 13v28M27 56V42a5 5 0 0 1 10 0v14M32 3v12M27 8h10M8 57V35l7-6M56 57V35l-7-6"/><circle cx="32" cy="28" r="4"/></svg>
   <h2>Ceremonia religiosa</h2>
   <p>Acompáñanos a celebrar nuestra unión ante Dios.</p>
   <div class="time">5:00 p. m.</div>
   <p class="place">Iglesia Príncipe de Paz</p>
   <p>Humberto Junco Voigt No. 2309,<br>Haciendas de la Sierra,<br>San Pedro Garza García, Nuevo León.</p>
   <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=Iglesia+Pr%C3%ADncipe+de+Paz+Humberto+Junco+Voigt+2309+San+Pedro+Garza+Garc%C3%ADa">Ver en mapa</a>
-</section>
-
-<section class="reveal">
+</article><article class="venue"><svg class="venue-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="m13 6 17 5-7 21c-4 10-18 5-14-5ZM21 36l-5 18M8 52l16 5M51 6l-17 5 7 21c4 10 18 5 14-5ZM43 36l5 18M40 57l16-5M13 20l13 4M38 24l13-4M32 2v4M27 2l-2 4M37 2l2 4"/></svg>
   <h2>Recepción</h2>
   <p>¡Sigamos celebrando juntos este día tan especial!</p>
   <div class="time">7:00 p. m.</div>
   <p class="place">Fundador Eventos</p>
   <p>Santa Isabel 100, Fracc. Santa Alicia,<br>Apodaca, Nuevo León.</p>
   <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=Fundador+Eventos+Santa+Isabel+100+Santa+Alicia+Apodaca">Ver en mapa</a>
-</section>
-
-<section class="reveal">
-  <h2>Nuestro itinerario</h2>
+</article></div></section><section class="itinerario reveal">
+  <span class="eyebrow">Cada momento, contigo</span><h2>Itinerario</h2>
   <ul class="tl">
     <li><b>7:00 p. m.</b><span>Recepción de invitados</span></li>
     <li><b>7:30 p. m.</b><span>Entrada de los novios</span></li>
@@ -154,31 +34,23 @@ section:nth-of-type(3)::before,section:nth-of-type(7)::before,section:last-of-ty
     <li><b>8:35 p. m.</b><span>Cena</span></li>
     <li><b>10:00 p. m.</b><span>¡Que siga la fiesta!</span></li>
   </ul>
-</section>
-
-<section class="reveal">
+</section><section class="vestimenta reveal">
   <h2>Código de vestimenta</h2>
   <div class="script big" style="font-size:2.6rem">Formal</div>
   <p><b>Ellas:</b> Vestido largo.<br><b>Ellos:</b> Traje o conjunto formal.</p>
   <p class="small" style="letter-spacing:.08em;text-transform:none;font-size:1rem;font-style:italic">El blanco, rosa y verde olivo estarán reservados para la novia y sus damas.</p>
-</section>
-
-<section class="reveal">
+</section><section class="regalos reveal">
   <h2>Lluvia de sobres</h2>
   <p>Tu presencia es nuestro mejor regalo.</p>
   <p>Si deseas tener un detalle con nosotros, agradeceremos mucho tu cariño a través de una lluvia de sobres.</p>
   <div class="orn">✉</div>
-</section>
-
-<section class="reveal">
-  <h2>Nuestra galería</h2>
+</section><section class="galeria reveal">
+  <h2>Nuestra historia</h2>
   <div class="script big" style="font-size:2.4rem">Un poquito de nuestra historia</div>
   <p>Revive con nosotros algunos de los momentos que nos han traído hasta aquí.</p>
   <!-- Reemplaza # por el enlace de tu galería -->
   <div class="galeria-fotos" id="fotos"><figure><img src="assets/foto-2.webp" alt="Paola y Edgar juntos en unas escaleras rodeadas de vegetación" loading="lazy" decoding="async"></figure><figure><img src="assets/foto-3.webp" alt="Paola y Edgar abrazados en un paisaje natural" loading="lazy" decoding="async"></figure><figure><img src="assets/foto-4.webp" alt="Paola y Edgar con las montañas al fondo" loading="lazy" decoding="async"></figure></div>
-</section>
-
-<section class="reveal">
+</section><section class="cuenta reveal">
   <h2>¡Falta poco para nuestro gran día!</h2>
   <div class="cd" id="cd">
     <div><strong id="d">0</strong><span>Días</span></div>
@@ -186,38 +58,20 @@ section:nth-of-type(3)::before,section:nth-of-type(7)::before,section:last-of-ty
     <div><strong id="m">0</strong><span>Min</span></div>
     <div><strong id="s">0</strong><span>Seg</span></div>
   </div>
-</section>
-
-<section class="reveal">
+</section><section class="adultos reveal">
   <div class="card"><p style="margin:0"><b>Celebración sin niños.</b><br>Gracias por tu comprensión.</p></div>
-</section>
-
-<section class="reveal">
+</section><section class="confirmar reveal">
   <h2>Confirmación de asistencia</h2>
   <p>¡Nos encantará compartir contigo este día tan especial!</p>
   <p>Agradecemos confirmar tu asistencia antes del <b>1 de noviembre de 2026</b>.</p>
   <!-- Cambia el número (52 + 10 dígitos) -->
   <button class="btn" type="button" id="rsvp">Confirmar asistencia</button>
-</section>
-
-<section class="reveal">
-  <p>Gracias por formar parte de nuestra historia y acompañarnos en el comienzo de esta nueva etapa.</p>
+</section><section class="despedida reveal">
+<svg class="ramito" viewBox="0 0 130 145" aria-hidden="true"><g fill="none" stroke="#7e8b5f" stroke-width="1.5"><path d="M64 140Q45 70 80 10M60 112Q22 82 22 48M59 94Q103 69 110 34"/></g><g fill="#99a47a"><ellipse cx="71" cy="28" rx="7" ry="16" transform="rotate(26 71 28)"/><ellipse cx="57" cy="52" rx="7" ry="17" transform="rotate(-32 57 52)"/><ellipse cx="73" cy="72" rx="7" ry="17" transform="rotate(45 73 72)"/><ellipse cx="36" cy="80" rx="7" ry="17" transform="rotate(-48 36 80)"/><ellipse cx="95" cy="61" rx="6" ry="14" transform="rotate(35 95 61)"/></g><g fill="#d9b4af"><ellipse cx="54" cy="99" rx="12" ry="20" transform="rotate(-25 54 99)"/><ellipse cx="62" cy="98" rx="12" ry="20" transform="rotate(25 62 98)"/><ellipse cx="58" cy="101" rx="20" ry="11"/><circle cx="58" cy="101" r="5" fill="#faf2db"/></g></svg><p>Gracias por formar parte de nuestra historia y acompañarnos en el comienzo de esta nueva etapa.</p>
   <p>Con cariño,</p>
   <div class="script big">Paola &amp; Edgar</div>
-</section>
-
-<script>
+</section></main><script>
 (function(){
-  var intro=document.getElementById('intro'),env=document.getElementById('env');
-  function open(){
-    if(intro.classList.contains('open'))return;
-    intro.classList.add('open');
-    setTimeout(function(){document.body.classList.remove('lock');window.scrollTo(0,0)},1400);
-  }
-  env.addEventListener('click',open);
-  intro.addEventListener('click',open);
-  env.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
-
   var target=new Date('2026-11-29T17:00:00-06:00').getTime();
   function tick(){
     var t=Math.max(0,target-Date.now());
@@ -234,9 +88,7 @@ section:nth-of-type(3)::before,section:nth-of-type(7)::before,section:last-of-ty
     els.forEach(function(el){io.observe(el)});
   }else{els.forEach(function(el){el.classList.add('in')})}
 })();
-</script>
-
-<dialog id="confirmacion" aria-labelledby="titulo-confirmacion">
+</script><dialog id="confirmacion" aria-labelledby="titulo-confirmacion">
   <button type="button" class="cerrar-confirmacion" aria-label="Cerrar confirmación">Cerrar ×</button>
   <h2 id="titulo-confirmacion">Confirma tu asistencia</h2>
   <form id="form-confirmacion">
@@ -259,8 +111,7 @@ section:nth-of-type(3)::before,section:nth-of-type(7)::before,section:last-of-ty
     </div>
     <p id="estado-confirmacion" class="nota-rsvp" role="status"></p>
   </form>
-</dialog>
-<script>
+</dialog><script>
 (function(){
   const modal = document.getElementById('confirmacion');
   const form = document.getElementById('form-confirmacion');
@@ -280,9 +131,4 @@ section:nth-of-type(3)::before,section:nth-of-type(7)::before,section:last-of-ty
   });
   document.getElementById('nombres-invitados').addEventListener('input',function(){this.setCustomValidity('')});
 })();
-</script>
-
-</body>
-</html>
-
-
+</script></body></html>
