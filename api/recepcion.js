@@ -1,5 +1,6 @@
 import { neon } from '@neondatabase/serverless';
 import { autorizarRecepcion, extraerToken, prepararRecepcion, validarEntrada, resumenEntradas, listarLlegadas } from '../lib/recepcion.js';
+import { actualizarMesas, etiquetaMesa } from '../lib/mesas.js';
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -12,20 +13,22 @@ export default async function handler(req, res) {
   let body;
   try { body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body; }
   catch { return res.status(400).json({ error: 'Solicitud inválida.' }); }
-  if (!['resumen', 'llegadas', 'consultar', 'registrar'].includes(body?.accion)) return res.status(400).json({ error: 'Acción inválida.' });
+  if (!['resumen', 'llegadas', 'mesas', 'consultar', 'registrar'].includes(body?.accion)) return res.status(400).json({ error: 'Acción inválida.' });
   const connection = process.env.DATABASE_URL || process.env.POSTGRES_URL;
   if (!connection) return res.status(503).json({ error: 'No se pudo conectar. Intenta nuevamente.' });
   try {
     const sql = neon(connection);
     await prepararRecepcion(sql);
-    if (['resumen', 'llegadas'].includes(body.accion)) {
+    const plan = await actualizarMesas(sql);
+    const mesas = { mesas: plan.mesas, pendientes: plan.pendientes, capacidad: plan.capacidad };
+    if (['resumen', 'llegadas', 'mesas'].includes(body.accion)) {
       const [resumen, llegadas] = await Promise.all([resumenEntradas(sql), listarLlegadas(sql)]);
-      return res.json({ ok: true, resumen, llegadas });
+      return res.json({ ok: true, resumen, llegadas, distribucion: mesas });
     }
     const token = extraerToken(body.qr);
     if (!token) return res.status(400).json({ error: 'Este QR no corresponde a un pase de esta boda.' });
     const pase = await validarEntrada(sql, token, body.accion === 'registrar');
-    return res.json({ ok: true, pase, resumen: await resumenEntradas(sql),
+    return res.json({ ok: true, pase: { ...pase, mesaTexto: etiquetaMesa(pase.mesa) }, resumen: await resumenEntradas(sql), distribucion: mesas,
       ...(body.accion === 'registrar' ? { llegadas: await listarLlegadas(sql) } : {}) });
   } catch {
     console.error('Error en el control de recepción.');

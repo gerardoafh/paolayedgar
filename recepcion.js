@@ -2,6 +2,41 @@ import QrScanner from './vendor/qr-scanner.min.js';
 const $ = id => document.getElementById(id);
 let clave = '', qrActual = '', ocupado = false, scanner;
 let llegadas = [], refrescando = false;
+let distribucion = null;
+function mostrarMesas() {
+  if (!distribucion) return;
+  const filtro = normalizar($('buscar-mesas').value.trim());
+  const contenedor = $('lista-mesas'); contenedor.replaceChildren();
+  const sentados = distribucion.mesas.reduce((sum, m) => sum + m.ocupados, 0);
+  const reservados = distribucion.mesas.reduce((sum, m) => sum + m.reservados, 0);
+  $('resumen-mesas').textContent = `${distribucion.capacidad} lugares · ${sentados} confirmados con mesa · ${reservados} lugares de papás reservados por confirmar · ${distribucion.pendientes.length} pendientes de acomodo.`;
+  for (const mesa of distribucion.mesas) {
+    const coincidencias = mesa.invitados.filter(p => normalizar(p.nombre).includes(filtro));
+    if (filtro && !coincidencias.length) continue;
+    const card = document.createElement('details'); card.className = 'mesa-card'; card.open = Boolean(filtro) || mesa.numero <= 2;
+    const title = document.createElement('summary');
+    title.textContent = `${mesa.numero <= 2 ? 'Imperial' : 'Mesa'} ${mesa.numero} · ${mesa.ocupados + mesa.reservados}/${mesa.capacidad} lugares`;
+    const category = document.createElement('p'); category.className = 'categoria-mesa'; category.textContent = mesa.categoria || 'Disponible';
+    card.append(title, category);
+    const list = document.createElement('ul');
+    for (const invitado of mesa.invitados) {
+      const item = document.createElement('li');
+      item.textContent = invitado.nombre;
+      const estado = document.createElement('span');
+      estado.textContent = invitado.reservado ? 'Lugar reservado · por confirmar' : [invitado.parentesco, invitado.llego ? 'Ya llegó' : 'Confirmado · aún no llega'].filter(Boolean).join(' · ');
+      item.append(estado); list.append(item);
+    }
+    if (!mesa.invitados.length) { const empty = document.createElement('li'); empty.textContent = 'Sin invitados asignados.'; list.append(empty); }
+    card.append(list); contenedor.append(card);
+  }
+  $('pendientes-mesas').replaceChildren();
+  if (distribucion.pendientes.length) {
+    const title = document.createElement('h3'); title.textContent = 'Pendientes de acomodo'; $('pendientes-mesas').append(title);
+    for (const persona of distribucion.pendientes) {
+      const p = document.createElement('p'); p.textContent = persona.nombre + ': ' + persona.motivo; $('pendientes-mesas').append(p);
+    }
+  }
+}
 const normalizar = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 function mostrarLlegadas() {
   const filtro = normalizar($('buscar-llegadas').value.trim());
@@ -10,7 +45,7 @@ function mostrarLlegadas() {
   $('lista-llegadas').replaceChildren();
   for (const pase of lista) {
     const row = document.createElement('tr');
-    const values = [pase.nombre, new Date(pase.fecha_entrada).toLocaleString('es-MX', { timeZone: 'America/Mexico_City', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }), pase.id.slice(0, 8).toUpperCase()];
+    const values = [pase.nombre, pase.mesa ? pase.mesa <= 2 ? 'Imperial ' + pase.mesa : 'Mesa ' + pase.mesa : 'Por asignar', new Date(pase.fecha_entrada).toLocaleString('es-MX', { timeZone: 'America/Mexico_City', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }), pase.id.slice(0, 8).toUpperCase()];
     for (const value of values) { const cell = document.createElement('td'); cell.textContent = value; row.append(cell); }
     $('lista-llegadas').append(row);
   }
@@ -39,6 +74,7 @@ async function api(accion, qr) {
   if (!response.ok) throw new Error(data.error || 'No se pudo verificar el pase.');
   resumen(data.resumen);
   if (data.llegadas) { llegadas = data.llegadas; mostrarLlegadas(); }
+  if (data.distribucion) { distribucion = data.distribucion; mostrarMesas(); }
   return data;
 }
 function detener() {
@@ -50,6 +86,7 @@ function salir() {
   $('panel-recepcion').hidden = true; $('acceso-recepcion').hidden = false;
   $('resultado-entrada').hidden = true;
   llegadas = []; $('lista-llegadas').replaceChildren(); $('buscar-llegadas').value = '';
+  distribucion = null; $('lista-mesas').replaceChildren(); $('pendientes-mesas').replaceChildren();
 }
 function resultado(pase) {
   const textos = {
@@ -64,6 +101,7 @@ function resultado(pase) {
   $('resultado-entrada').dataset.estado = pase.estado;
   $('etiqueta-entrada').textContent = title;
   $('nombre-entrada').textContent = pase.nombre || 'Revisa el pase';
+  $('mesa-entrada').textContent = pase.mesaTexto || '';
   $('detalle-entrada').textContent = detail + (pase.fecha_entrada ? ' Entrada: ' + new Date(pase.fecha_entrada).toLocaleString('es-MX', { timeZone: 'America/Mexico_City' }) + '.' : '');
   $('registrar-entrada').hidden = pase.estado !== 'valido';
   const llegada = ['registrado', 'utilizado'].includes(pase.estado) && pase.fecha_entrada;
@@ -71,7 +109,7 @@ function resultado(pase) {
   $('ayuda-aviso').hidden = !llegada;
   if (llegada) {
     const hora = new Date(pase.fecha_entrada).toLocaleString('es-MX', { timeZone: 'America/Mexico_City' });
-    const message = 'Recepción · Boda de Paola y Edgar\n\nYa llegó: ' + pase.nombre + '\nEntrada registrada: ' + hora + '\nPase: ' + pase.id.slice(0, 8).toUpperCase() + '\n1 persona.';
+    const message = 'Recepción · Boda de Paola y Edgar\n\nYa llegó: ' + pase.nombre + '\n' + pase.mesaTexto + '\nEntrada registrada: ' + hora + '\nPase: ' + pase.id.slice(0, 8).toUpperCase() + '\n1 persona.';
     $('avisar-llegada').href = 'https://wa.me/528135910620?text=' + encodeURIComponent(message);
   }
   $('resultado-entrada').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -124,4 +162,7 @@ window.addEventListener('pagehide', () => scanner?.destroy());
 $('buscar-llegadas').addEventListener('input', mostrarLlegadas);
 $('actualizar-llegadas').addEventListener('click', actualizarLlegadas);
 $('panel-llegadas').addEventListener('toggle', () => { if ($('panel-llegadas').open) actualizarLlegadas(); });
-setInterval(() => { if (!document.hidden && $('panel-llegadas').open && !$('panel-recepcion').hidden) actualizarLlegadas(); }, 20000);
+setInterval(() => { if (!document.hidden && ($('panel-llegadas').open || $('panel-mesas').open) && !$('panel-recepcion').hidden) actualizarLlegadas(); }, 20000);
+$('buscar-mesas').addEventListener('input', mostrarMesas);
+$('actualizar-mesas').addEventListener('click', actualizarLlegadas);
+$('panel-mesas').addEventListener('toggle', () => { if ($('panel-mesas').open) actualizarLlegadas(); });

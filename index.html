@@ -92,18 +92,19 @@
   <button type="button" class="cerrar-confirmacion" aria-label="Cerrar confirmación">Cerrar ×</button>
   <h2 id="titulo-confirmacion">Confirma tu asistencia</h2>
   <form id="form-confirmacion">
-    <label for="nombres-invitados">Nombres de los invitados que asistirán</label>
-    <textarea id="nombres-invitados" name="nombres" required maxlength="1500" placeholder="Escribe el nombre y apellido de cada invitado, uno por línea"></textarea>
-    <label for="relacion-invitados">¿De parte de quién nos acompañan?</label>
+    <p class="nota-rsvp">Registra juntos únicamente a quienes deban compartir mesa. Escribe los nombres completos. Para hermanos y sus familias, elige primero tu relación con los novios.</p>    <label for="relacion-invitados">¿De parte de quién nos acompañan?</label>
     <select id="relacion-invitados" name="relacion" required>
       <option value="">Selecciona una opción</option>
-      <option>Familiares de la novia</option>
+      <option>Hermanos de la novia</option><option>Hermanos del novio</option><option>Familiares de la novia</option>
       <option>Familiares del novio</option>
       <option>Amigos de la novia</option>
       <option>Amigos del novio</option>
       <option>Familiares de ambos</option>
       <option>Amigos de ambos</option>
     </select>
+<label for="nombres-invitados">Nombres de los invitados que asistirán (uno por línea)</label>
+    <textarea id="nombres-invitados" name="nombres" required maxlength="1500" placeholder="Escribe el nombre y apellido de cada invitado, uno por línea"></textarea>
+<fieldset id="familia-hermanos" hidden><legend>Hermano o hermana y su familia</legend><label for="nombre-hermano">Nombre completo del hermano o hermana</label><input id="nombre-hermano" type="text" maxlength="150" autocomplete="name"><label for="nombre-pareja">Nombre completo de su pareja (si asiste)</label><input id="nombre-pareja" type="text" maxlength="150"><label for="nombres-hijos">Nombres completos de sus hijos que asistirán</label><textarea id="nombres-hijos" maxlength="1200" placeholder="Un nombre por línea. Déjalo vacío si no asisten hijos."></textarea><p class="nota-rsvp">Incluye solo a los acompañantes que asistirán. Registra a cada hermano o hermana en una confirmación separada con su propia familia.</p></fieldset>
     <p class="nota-rsvp">Elige a quién deseas avisar. Guardaremos los nombres y tu relación con los novios para organizar la boda; generaremos un pase por cada nombre y después podrás continuar por WhatsApp.</p>
     <div class="acciones-rsvp">
       <button class="btn" type="submit" value="528119831332">Confirmar · 81 1983 1332</button>

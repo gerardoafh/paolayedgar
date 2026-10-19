@@ -20,7 +20,8 @@ test('los nombres se envían como parámetros, sin mezclarse con SQL', async () 
   };
   const datos = validarConfirmacion({ ...data, nombres: "Ana'); DROP TABLE confirmaciones_boda;--" });
   assert.equal(await guardarConfirmacion(sql, datos), data.id);
-  assert(!calls[1].text.includes('DROP TABLE'));
-  assert(calls[1].values.includes(JSON.stringify(datos.nombres)));
-  assert(calls[1].text.includes('ON CONFLICT (id)'));
+  const insert = calls.find(c => c.text.includes('INSERT INTO'));
+  assert(!insert.text.includes('DROP TABLE'));
+  assert(insert.values.includes(JSON.stringify(datos.nombres)));
+  assert(insert.text.includes('ON CONFLICT (id)'));
 });

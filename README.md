@@ -35,3 +35,13 @@ El lector de cámara necesita HTTPS y permiso del dispositivo. La lectura de im�
 ## Música
 
 La invitación incorpora el video oficial de Maná «Bendita Tu Luz» mediante el reproductor de YouTube. Al abrir el sobre se intenta iniciar la música a volumen moderado; si el navegador bloquea el inicio, el invitado puede tocar Reproducir música. El botón flotante permite pausar o continuar.
+
+## Acomodo automático de mesas
+
+Capacidad total: 200 personas en 21 mesas. Imperial 1: 16 lugares para familia directa de la novia. Imperial 2: 16 para familia directa del novio. Mesas 3–13: 8 lugares cada una. Mesas 14–21: 10 lugares cada una.
+
+Se reservan dos lugares de papás en cada imperial, reconocidos por sus nombres completos. La confirmación incluye Hermanos de la novia / Hermanos del novio y campos separados para titular, pareja e hijos. Cada confirmación es un grupo que se mantiene junto. Los hermanos se priorizan en su imperial y, si no caben juntos, reciben otra mesa exclusiva de su categoría. Los demás grupos se acomodan por familiares o amigos y lado. Se conservan asignaciones previas cuando sigue habiendo espacio. Si no cabe una familia completa, aparece pendiente; nunca se crean mesas extra ni se sobrepasa la capacidad.
+
+La asignación usa una revisión atómica en Postgres para evitar sobrecupo entre confirmaciones simultáneas. La mesa aparece en el pase, en la consulta del QR y en el panel de recepción, que permite buscar nombres y ver ocupación, reservas y pendientes. Los registros cuyo nombre empieza con PRUEBA no consumen lugares ni aparecen en los totales de recepción.
+
+Una imagen de pase ya descargada no se actualiza sola. El enlace del pase y su QR consultan la mesa actual; el invitado puede volver a descargar la imagen.

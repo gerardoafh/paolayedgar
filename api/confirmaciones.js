@@ -1,6 +1,7 @@
 import { neon } from '@neondatabase/serverless';
 import { validarConfirmacion, guardarConfirmacion } from '../lib/confirmaciones.js';
 import { generarPases } from '../lib/pases.js';
+import { actualizarMesas, etiquetaMesa } from '../lib/mesas.js';
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -28,7 +29,14 @@ export default async function handler(req, res) {
     const id = await guardarConfirmacion(sql, datos);
     try {
       const pases = await generarPases(sql, datos);
-      return res.status(200).json({ ok: true, id, pases });
+      try {
+        const plan = await actualizarMesas(sql);
+        const own = await sql`SELECT id, mesa FROM pases_boda WHERE confirmacion_id = ${id} AND activo = TRUE ORDER BY posicion`;
+        return res.status(200).json({ ok: true, id, pases: pases.map((p, i) => ({ ...p, mesa: own[i]?.mesa || null, mesaTexto: etiquetaMesa(own[i]?.mesa) })), mesasPendientes: own.some(p => !p.mesa) });
+      } catch {
+        console.error('Confirmación y pases guardados; acomodo de mesa pendiente.');
+        return res.status(200).json({ ok: true, id, pases, mesasPendientes: true });
+      }
     } catch {
       console.error('Confirmación guardada; no se pudieron generar los pases.');
       return res.status(200).json({ ok: true, id, pases: [], pasesPendientes: true });

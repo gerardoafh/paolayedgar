@@ -47,8 +47,9 @@
     c.font = '27px Georgia'; c.fillText('Fundador Eventos', 500, 810);
     c.font = '19px Georgia'; c.fillText('Santa Isabel 100, Santa Alicia · Apodaca, N. L.', 500, 850);
     c.drawImage(qr, 340, 890, 320, 320);
-    c.font = '20px Georgia'; c.fillStyle = '#9b6c70'; c.fillText('1 PERSONA · ' + pase.codigo, 500, 1260);
-    c.font = '18px Georgia'; c.fillStyle = '#69734c'; c.fillText('Conserva tu pase para el día de la boda', 500, 1320);
+    c.font = '23px Georgia'; c.fillStyle = '#69734c'; c.fillText(pase.mesaTexto || 'Mesa por asignar', 500, 1250, 660);
+    c.font = '20px Georgia'; c.fillStyle = '#9b6c70'; c.fillText('1 PERSONA · ' + pase.codigo, 500, 1290);
+    c.font = '18px Georgia'; c.fillStyle = '#69734c'; c.fillText('Conserva tu pase para el día de la boda', 500, 1340);
     return canvas;
   }
   async function start() {
@@ -82,7 +83,7 @@
         });
       }
       document.getElementById('ayuda-pase').hidden = false;
-      estado.textContent = 'Asistencia confirmada · ' + pase.nombre;
+      estado.textContent = 'Asistencia confirmada · ' + pase.nombre + ' · ' + pase.mesaTexto;
     } catch (error) {
       estado.textContent = error.name === 'TimeoutError' || error instanceof TypeError
         ? 'No pudimos cargar tu pase. Revisa tu conexión y recarga la página.' : error.message;

@@ -13,3 +13,5 @@
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reveal{opacity:1;transform:none;transition:none}}@media print{.reveal{opacity:1;transform:none}.btn{display:none}section{break-inside:avoid}}
 
 [hidden]{display:none!important}.btn:disabled{opacity:.6;cursor:wait;transform:none}
+
+#familia-hermanos{border:1px solid var(--line);padding:16px;margin:22px 0}#familia-hermanos legend{font-size:1.1rem;color:var(--accent)}#familia-hermanos input{display:block;width:100%;padding:12px;background:var(--card);border:1px solid #aab394;border-radius:4px;color:var(--ink);font:inherit;font-size:1.05rem}
