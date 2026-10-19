@@ -1,0 +1,24 @@
+:root,:root[data-theme="dark"]{color-scheme:light;--bg:#f8f5ed;--card:#fcfaf5;--ink:#454936;--accent:#687044;--olive-soft:#e8eadc;--rose:#ddb9b5;--rose-deep:#a96e74;--line:#d7d9c7}
+body{background:var(--bg) url('paper.svg');font-size:21px}
+section{position:relative;isolation:isolate;max-width:680px;padding:76px 58px;border:0}
+section:nth-of-type(even){background:transparent;box-shadow:none;clip-path:none}
+section::after{content:"";display:block;width:70px;height:1px;margin:48px auto -34px;background:var(--line)}
+section:last-of-type::after{display:none}
+h2{font-family:"Great Vibes","Brush Script MT",cursive;font-size:3.4rem;font-weight:400;line-height:1.18;letter-spacing:0;text-transform:none;margin-bottom:30px}
+h2::after{height:1px;width:70px;background:var(--rose);margin-top:20px}
+.script{color:var(--accent)}.big{font-size:4.8rem;line-height:1.15}.small{font-size:.83rem;letter-spacing:.23em}
+#portada{padding:110px 55px 88px;min-height:880px;display:flex;flex-direction:column;justify-content:center;color:var(--card);background:var(--accent);overflow:hidden}
+#portada::before{content:"";position:absolute;inset:0;background:url('botanica.svg') left -90px top -60px/300px auto no-repeat,url('botanica.svg') right -110px bottom -90px/350px auto no-repeat;opacity:.95;z-index:-1;pointer-events:none}
+#portada::after{position:absolute;inset:26px;border:1px solid #eeeed15c;background:none;width:auto;height:auto;margin:0;z-index:-1}
+#portada .big{color:#fffdf3;font-size:5.3rem;max-width:430px;margin:28px auto}#portada .orn{color:var(--rose);font-size:2.2rem}#portada .verse{font-size:1.22rem;margin:35px auto 22px}#portada p:last-child{max-width:420px;margin:0 auto}
+.card{border:0;background:transparent;border-radius:0;padding:18px 8px;margin:0}.pair{grid-template-columns:1fr;gap:12px}.pair .card:first-child::after{content:"&";font-family:"Great Vibes",cursive;display:block;font-size:2rem;color:var(--rose-deep);margin-top:22px}.pair .small{color:var(--accent);font-size:.75rem}.pair p:last-child{font-size:1.5rem;line-height:1.5}
+.btn{border-radius:0;background:var(--accent);color:#fffdf3;font-family:Georgia,serif;font-size:.68rem;letter-spacing:.17em;padding:15px 25px;margin-top:22px}.btn:hover{background:#515a35;color:white;transform:translateY(-2px)}.btn:focus-visible,.env:focus-visible{outline:3px solid var(--rose-deep);outline-offset:6px}
+.time{font-size:2.5rem;color:var(--accent);font-weight:400}.place{font-size:1.8rem;font-weight:400;line-height:1.2}
+section:nth-of-type(3)::before,section:nth-of-type(7)::before,section:last-of-type::before{content:"";display:block;width:160px;height:150px;background:url('botanica.svg') center/contain no-repeat;margin:0 auto 25px}
+.tl{max-width:430px;margin:auto}.tl li{grid-template-columns:105px 1fr;padding:18px 0}.tl b{font-weight:400}.tl span{padding-left:16px;border-left:1px solid var(--rose)}
+.cd{gap:0;border-block:1px solid var(--line);padding:20px 0}.cd div{border:0;border-right:1px solid var(--line);background:transparent;border-radius:0;padding:0 4px}.cd div:last-child{border:0}.cd strong{font-size:2.8rem;font-weight:400}.cd span{font-size:.6rem}
+#intro{background:var(--bg) url('botanica.svg') right -80px bottom -50px/330px no-repeat}#intro::before{content:"Nuestra boda";font-family:"Great Vibes",cursive;font-size:3.6rem;color:var(--accent);margin-bottom:20px}.env .back{background:#687044}.env .front{background:linear-gradient(to top right,transparent 49.5%,#7d8559 50%) left/50% 100% no-repeat,linear-gradient(to top left,transparent 49.5%,#7d8559 50%) right/50% 100% no-repeat;background-color:#959d74}.env .flap{background:#858d60}.seal{background:var(--rose-deep)}.hint{color:var(--accent)}
+@media(min-width:700px){body{padding:30px 0}section{box-shadow:0 8px 50px #45493608}#portada{border-radius:230px 230px 0 0}#portada::after{border-radius:210px 210px 0 0}}
+@media(max-width:480px){section{padding:62px 28px}h2{font-size:2.9rem}.big{font-size:4rem}#portada{padding:85px 35px 70px;min-height:820px}#portada .big{font-size:4.4rem}#portada::before{background-size:230px,260px}body{font-size:20px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media print{#intro{display:none}body.lock{overflow:visible}.reveal{opacity:1;transform:none}section{break-inside:avoid}}
