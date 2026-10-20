@@ -102,8 +102,15 @@
       <option>Familiares de ambos</option>
       <option>Amigos de ambos</option>
     </select>
-<label for="nombres-invitados">Nombres de los invitados que asistirán (uno por línea)</label>
-    <textarea id="nombres-invitados" name="nombres" required maxlength="1500" placeholder="Escribe el nombre y apellido de cada invitado, uno por línea"></textarea>
+    <fieldset id="invitados-generales">
+      <legend>¿Quiénes asistirán?</legend>
+      <div id="campos-invitados">
+        <div class="campo-invitado"><label for="nombres-invitados">Tu nombre completo</label><input id="nombres-invitados" name="nombre-invitado" type="text" required maxlength="150" autocomplete="name" placeholder="Nombre y apellidos"></div>
+      </div>
+      <button class="btn agregar-invitado" id="agregar-invitado" type="button">+ Agregar invitado</button>
+      <p id="total-invitados" class="nota-rsvp" role="status">1 persona en esta confirmación</p>
+      <p class="nota-rsvp">Si confirmas por dos o más personas, agrega a cada acompañante por su nombre. Cada persona tendrá su propio pase y quedarán registradas juntas para el acomodo de mesas. Máximo 16 personas por confirmación.</p>
+    </fieldset>
 <fieldset id="familia-hermanos" hidden><legend>Hermano o hermana y su familia</legend><label for="nombre-hermano">Nombre completo del hermano o hermana</label><input id="nombre-hermano" type="text" maxlength="150" autocomplete="name"><label for="nombre-pareja">Nombre completo de su pareja (si asiste)</label><input id="nombre-pareja" type="text" maxlength="150"><label for="nombres-hijos">Nombres completos de sus hijos que asistirán</label><textarea id="nombres-hijos" maxlength="1200" placeholder="Un nombre por línea. Déjalo vacío si no asisten hijos."></textarea><p class="nota-rsvp">Incluye solo a los acompañantes que asistirán. Registra a cada hermano o hermana en una confirmación separada con su propia familia.</p></fieldset>
     <p class="nota-rsvp">Elige a quién deseas avisar. Guardaremos los nombres y tu relación con los novios para organizar la boda; generaremos un pase por cada nombre y después podrás continuar por WhatsApp.</p>
     <div class="acciones-rsvp">

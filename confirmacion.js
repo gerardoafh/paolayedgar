@@ -4,6 +4,10 @@
   const status = document.getElementById('estado-confirmacion');
   const continuar = document.getElementById('continuar-whatsapp');
   const names = document.getElementById('nombres-invitados');
+  const generales = document.getElementById('invitados-generales');
+  const campos = document.getElementById('campos-invitados');
+  const agregar = document.getElementById('agregar-invitado');
+  const total = document.getElementById('total-invitados');
   const listaPases = document.getElementById('lista-pases');
   const relacion = document.getElementById('relacion-invitados');
   const familia = document.getElementById('familia-hermanos');
@@ -15,25 +19,54 @@
     familia.hidden = !esHermano;
     hermano.required = esHermano;
     for (const field of [hermano, pareja, hijos]) field.disabled = !esHermano;
-    names.required = !esHermano;
-    names.hidden = esHermano;
-    document.querySelector('label[for="nombres-invitados"]').hidden = esHermano;
+    generales.hidden = esHermano;
+    generales.disabled = esHermano;
   }
   relacion.addEventListener('change', cambiarRelacion);
   cambiarRelacion();
   let requestId = crypto.randomUUID();
   let busy = false;
+  let siguienteInvitado = 1;
+  function limpiarResultado() {
+    names.setCustomValidity('');
+    hermano.setCustomValidity('');
+    continuar.hidden = true;
+    listaPases.hidden = true;
+    status.textContent = '';
+  }
+  function actualizarInvitados() {
+    const filas = [...campos.children];
+    filas.slice(1).forEach((fila, i) => {
+      fila.querySelector('label').textContent = 'Nombre completo del invitado ' + (i + 2);
+      fila.querySelector('button').setAttribute('aria-label', 'Quitar invitado ' + (i + 2));
+    });
+    agregar.disabled = filas.length >= 16;
+    total.textContent = filas.length + (filas.length === 1 ? ' persona en esta confirmación' : ' personas en esta confirmación');
+  }
+  agregar.addEventListener('click', () => {
+    if (busy || campos.children.length >= 16) return;
+    const fila = document.createElement('div');
+    fila.className = 'campo-invitado';
+    const input = document.createElement('input');
+    input.id = 'invitado-' + siguienteInvitado++;
+    input.name = 'nombre-invitado'; input.type = 'text';
+    input.required = true; input.maxLength = 150;
+    input.placeholder = 'Nombre y apellidos';
+    const label = document.createElement('label');
+    label.htmlFor = input.id;
+    const quitar = document.createElement('button');
+    quitar.type = 'button'; quitar.className = 'quitar-invitado';
+    quitar.textContent = 'Quitar';
+    quitar.addEventListener('click', () => {
+      if (busy) return;
+      fila.remove(); actualizarInvitados(); limpiarResultado(); agregar.focus();
+    });
+    fila.append(label, input, quitar); campos.append(fila);
+    actualizarInvitados(); limpiarResultado(); input.focus();
+  });
   document.getElementById('rsvp').addEventListener('click', () => modal.showModal());
   modal.querySelector('.cerrar-confirmacion').addEventListener('click', () => modal.close());
-  for (const field of [names, relacion, hermano, pareja, hijos]) {
-    field.addEventListener('input', () => {
-      names.setCustomValidity('');
-      hermano.setCustomValidity('');
-      continuar.hidden = true;
-      listaPases.hidden = true;
-      status.textContent = '';
-    });
-  }
+  form.addEventListener('input', limpiarResultado);
   form.addEventListener('submit', async event => {
     event.preventDefault();
     if (busy) return;
@@ -43,7 +76,15 @@
       ...(pareja.value.trim() ? [{ nombre: pareja.value.trim(), parentesco: 'Pareja' }] : []),
       ...hijos.value.split(/\r?\n/).map(n => n.trim()).filter(Boolean).map(nombre => ({ nombre, parentesco: 'Hijo/a' }))
     ] : [];
-    const nombres = esHermano ? integrantes.map(p => p.nombre).join('\n') : names.value.trim();
+    const invitados = [...campos.querySelectorAll('input')];
+    const incompleto = !esHermano && invitados.find(input => !input.value.trim());
+    if (incompleto) {
+      incompleto.setCustomValidity('Escribe el nombre de este invitado o quítalo de la lista.');
+      incompleto.reportValidity();
+      incompleto.addEventListener('input', () => incompleto.setCustomValidity(''), { once: true });
+      return;
+    }
+    const nombres = esHermano ? integrantes.map(p => p.nombre).join('\n') : invitados.map(input => input.value.trim()).join('\n');
     if (!nombres || (esHermano && !integrantes[0].nombre)) {
       if (esHermano) { hermano.setCustomValidity('Escribe el nombre del hermano o hermana.'); hermano.reportValidity(); return; }
       names.setCustomValidity('Escribe los nombres de quienes asistirán.');
@@ -54,9 +95,9 @@
     if (!['528119831332', '528135910620'].includes(number)) return;
     const relationship = relacion.value;
     const payload = { id: requestId, nombres, relacion: relationship, telefono: number, integrantes };
-    const buttons = [...form.querySelectorAll('button[type="submit"]')];
+    const controls = [...form.querySelectorAll('input, textarea, select, button')].map(control => ({ control, disabled: control.disabled }));
     busy = true;
-    buttons.forEach(button => button.disabled = true);
+    controls.forEach(({ control }) => control.disabled = true);
     continuar.hidden = true;
     listaPases.hidden = true;
     status.textContent = 'Guardando tu confirmación…';
@@ -99,7 +140,7 @@
         : error.message;
     } finally {
       busy = false;
-      buttons.forEach(button => button.disabled = false);
+      controls.forEach(({ control, disabled }) => control.disabled = disabled);
     }
   });
 })();
