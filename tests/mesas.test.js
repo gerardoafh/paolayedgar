@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { planificarMesas, CONFIG_MESAS, PADRES } from '../lib/mesas.js';
+import { planificarMesas, aplicarCambioMesa, CONFIG_MESAS, PADRES } from '../lib/mesas.js';
 import { validarConfirmacion } from '../lib/confirmaciones.js';
 function grupo(id, cantidad, relacion, mesa = null) {
   return Array.from({ length: cantidad }, (_, i) => ({ id: `${id}-${i}`, confirmacion_id: id, nombre: `Invitado ${id} ${i}`, posicion: i, relacion, mesa, fecha_confirmacion: '2026-10-19', integrantes: [] }));
@@ -48,4 +48,36 @@ test('las pruebas no consumen lugares y hermanos exigen parentescos explícitos'
   assert.throws(() => validarConfirmacion(base));
   const valid = validarConfirmacion({ ...base, integrantes: [{ nombre: 'Hermano Uno', parentesco: 'Hermano/a' }, { nombre: 'Pareja Uno', parentesco: 'Pareja' }, { nombre: 'Hijo Uno', parentesco: 'Hijo/a' }] });
   assert.equal(valid.integrantes.length, 3);
+});
+
+test('mueve una persona o toda su familia y conserva los cambios al recibir confirmaciones', () => {
+  const familia = grupo('familia', 3, 'Familiares de la novia', 3);
+  const otro = grupo('otro', 2, 'Familiares del novio', 4);
+  let pases = aplicarCambioMesa([...familia, ...otro], { id: 'familia-0', mesa: 4, grupo: false });
+  let plan = planificarMesas(pases);
+  assert.equal(plan.asignaciones.find(p => p.id === 'familia-0').mesa, 4);
+  assert(plan.asignaciones.filter(p => p.id.startsWith('otro')).every(p => p.mesa === 4));
+  assert(plan.asignaciones.filter(p => ['familia-1', 'familia-2'].includes(p.id)).every(p => p.mesa === 3));
+  pases = aplicarCambioMesa(pases, { id: 'familia-0', mesa: 14, grupo: true });
+  plan = planificarMesas([...pases, ...grupo('nuevo', 2, 'Familiares de la novia')]);
+  assert(plan.asignaciones.filter(p => p.id.startsWith('familia')).every(p => p.mesa === 14));
+  assert(plan.mesas.every(m => m.disponibles >= 0));
+});
+
+test('rechaza sobrecupo, mesas inexistentes y pases retirados antes de guardar', () => {
+  const pases = [...grupo('llena', 8, 'Amigos de la novia', 3), ...grupo('familia', 3, 'Amigos de la novia', 4)];
+  assert.throws(() => aplicarCambioMesa(pases, { id: 'familia-0', mesa: 3, grupo: true }), /0 lugares libres/);
+  assert.throws(() => aplicarCambioMesa(pases, { id: 'familia-0', mesa: 22, grupo: false }), /mesa válida/);
+  assert.throws(() => aplicarCambioMesa(pases, { id: 'retirado', mesa: 4, grupo: false }), /no está activo/);
+  assert.equal(pases[8].mesa_manual, undefined);
+});
+
+test('mueve a los papás sin duplicar sus reservas y limita lugares en imperiales', () => {
+  const padre = { ...grupo('papa', 1, 'Familiares de la novia', 1)[0], nombre: PADRES[0].nombre };
+  const pases = aplicarCambioMesa([padre], { id: padre.id, mesa: 14, grupo: false });
+  const plan = planificarMesas(pases);
+  assert.equal(plan.mesas[0].reservados, 1);
+  assert.equal(plan.mesas[13].ocupados, 1);
+  assert.equal(plan.asignaciones.find(p => p.id === padre.id).mesa, 14);
+  assert.throws(() => aplicarCambioMesa([...grupo('ocupa', 14, 'Hermanos de la novia', 1), ...grupo('otra', 1, 'Amigos de ambos', 3)], { id: 'otra-0', mesa: 1, grupo: false }), /0 lugares libres/);
 });

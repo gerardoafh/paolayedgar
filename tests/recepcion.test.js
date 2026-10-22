@@ -34,7 +34,7 @@ test('retira y restaura únicamente el pase indicado, sin borrar registros', asy
   await cambiarEstadoPase(sql, id, false); await cambiarEstadoPase(sql, id, true);
   assert(calls.every(c => c.text.includes('WHERE id =')));
   assert(calls.every(c => !c.text.includes('DELETE')));
-  assert.deepEqual(calls[0].values, [false, false, id]);
-  assert.deepEqual(calls[1].values, [true, true, id]);
+  assert.deepEqual(calls[0].values, [false, false, false, id]);
+  assert.deepEqual(calls[1].values, [true, true, true, id]);
   await assert.rejects(cambiarEstadoPase(sql, 'otro', false));
 });

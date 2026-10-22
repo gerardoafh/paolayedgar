@@ -1,12 +1,14 @@
 <!DOCTYPE html><html lang="es" data-theme="light"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#69734c"><title>Reenviar pases · Paola y Edgar</title><link rel="stylesheet" href="invitacion.css"><link rel="stylesheet" href="recepcion.css"><link rel="stylesheet" href="administrar-pases.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#69734c"><title>Administrar pases · Paola y Edgar</title><link rel="stylesheet" href="invitacion.css"><link rel="stylesheet" href="recepcion.css"><link rel="stylesheet" href="administrar-pases.css">
 </head><body><main class="recepcion gestion-pases">
-<header><span class="eyebrow">PAOLA Y EDGAR · NUESTRA BODA</span><h1>Reenviar pases</h1><p>Recupera y comparte los pases de tus invitados</p></header>
+<header><span class="eyebrow">PAOLA Y EDGAR · NUESTRA BODA</span><h1>Administrar pases</h1><p>Consulta confirmados, organiza mesas y comparte sus pases</p></header>
 <form id="acceso-pases"><label for="clave-pases">Clave de recepción</label><input id="clave-pases" type="password" required autocomplete="current-password"><button class="btn" type="submit">Entrar</button></form>
 <p id="estado-pases" role="status" aria-live="polite"></p>
 <div id="panel-pases" hidden>
   <div class="busqueda-pases"><label for="buscar-pases">Buscar por nombre, familia, mesa o código</label><input id="buscar-pases" type="search" autocomplete="off" placeholder="Escribe el nombre del invitado"><button id="actualizar-pases" class="btn secundario" type="button">Actualizar pases</button></div>
   <label class="filtro-retirados"><input id="mostrar-retirados" type="checkbox"> Mostrar pases retirados</label><p id="resumen-pases"></p>
+  <button id="descargar-excel" class="btn" type="button">Descargar confirmados en Excel</button>
+  <p class="ayuda">El reporte incluye todos los confirmados activos, sus mesas y llegadas, aunque tengas una búsqueda o muestres pases retirados. Los cambios manuales de mesa se conservan al recibir nuevas confirmaciones.</p>
   <p class="ayuda">Puedes recuperar un pase individual o compartir juntos los de una familia. WhatsApp te permitirá elegir al contacto y enviar el mensaje. Reenviar conserva el mismo QR y no registra otra confirmación ni borra una entrada ya utilizada.</p>
   <div id="familias-pases"></div>
   <div class="enlaces-gestion"><a href="/recepcion">Ir a recepción</a><button id="salir-pases" class="salir" type="button">Cerrar sesión</button></div>
