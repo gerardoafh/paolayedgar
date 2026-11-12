@@ -1,6 +1,6 @@
 import { neon } from '@neondatabase/serverless';
 import { autorizarRecepcion, extraerToken, prepararRecepcion, validarEntrada, resumenEntradas, listarLlegadas, listarPasesParaReenvio, cambiarEstadoPase } from '../lib/recepcion.js';
-import { actualizarMesas, etiquetaMesa, prepararMesas } from '../lib/mesas.js';
+import { actualizarMesas, etiquetaMesa, prepararMesas, previsualizarCambioMesa } from '../lib/mesas.js';
 import { crearReporteConfirmados } from '../lib/reporte-confirmados.js';
 
 export default async function handler(req, res) {
@@ -14,13 +14,16 @@ export default async function handler(req, res) {
   let body;
   try { body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body; }
   catch { return res.status(400).json({ error: 'Solicitud inválida.' }); }
-  if (!['resumen', 'llegadas', 'mesas', 'pases', 'reporte', 'cambiar-mesa', 'retirar', 'restaurar', 'consultar', 'registrar'].includes(body?.accion)) return res.status(400).json({ error: 'Acción inválida.' });
-  if (['retirar', 'restaurar', 'cambiar-mesa'].includes(body.accion) && (typeof body.id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(body.id))) return res.status(400).json({ error: 'Identificador inválido.' });
-  if (body.accion === 'cambiar-mesa' && (!Number.isInteger(body.mesa) || body.mesa < 1 || body.mesa > 21 || typeof body.grupo !== 'boolean')) return res.status(400).json({ error: 'Revisa la mesa y las personas que deseas mover.' });
+  if (!['resumen', 'llegadas', 'mesas', 'pases', 'reporte', 'cambiar-mesa', 'previsualizar-mesa', 'retirar', 'restaurar', 'consultar', 'registrar'].includes(body?.accion)) return res.status(400).json({ error: 'Acción inválida.' });
+  const mueveMesa = ['cambiar-mesa', 'previsualizar-mesa'].includes(body.accion);
+  if ((mueveMesa || ['retirar', 'restaurar'].includes(body.accion)) && (typeof body.id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(body.id))) return res.status(400).json({ error: 'Identificador inválido.' });
+  if (mueveMesa && (!Number.isInteger(body.mesa) || body.mesa < 1 || body.mesa > 21 || typeof body.grupo !== 'boolean')) return res.status(400).json({ error: 'Revisa la mesa y las personas que deseas mover.' });
+  if (body.accion === 'cambiar-mesa' && (typeof body.huella !== 'string' || !/^[a-f0-9]{64}$/.test(body.huella))) return res.status(400).json({ error: 'Revisa la vista previa antes de guardar el cambio de mesa.' });
   const connection = process.env.DATABASE_URL || process.env.POSTGRES_URL;
   if (!connection) return res.status(503).json({ error: 'No se pudo conectar. Intenta nuevamente.' });
   try {
     const sql = neon(connection);
+    if (body.accion === 'previsualizar-mesa') return res.json({ ok: true, previa: await previsualizarCambioMesa(sql, body) });
     await prepararRecepcion(sql);
     if (['retirar', 'restaurar'].includes(body.accion)) {
       await prepararMesas(sql);
@@ -45,7 +48,8 @@ export default async function handler(req, res) {
         relacion: pase.relacion, codigo: pase.id.slice(0, 8).toUpperCase(),
         mesa: pase.mesa, mesaManual: Boolean(pase.mesa_manual), mesaTexto: etiquetaMesa(pase.mesa), fechaEntrada: pase.fecha_entrada,
         url: 'https://paola-edgar.vercel.app/pase#' + pase.token
-      })), mesas: plan.mesas.map(m => ({ numero: m.numero, capacidad: m.capacidad, disponibles: m.disponibles, texto: etiquetaMesa(m.numero) })) });
+      })), mesas: plan.mesas.map(m => ({ numero: m.numero, capacidad: m.capacidad, disponibles: m.disponibles, texto: etiquetaMesa(m.numero),
+        categoria: m.categoria, reservas: m.invitados.filter(p => p.reservado).map(p => p.nombre) })) });
     }
     const mesas = { mesas: plan.mesas, pendientes: plan.pendientes, capacidad: plan.capacidad };
     if (['resumen', 'llegadas', 'mesas'].includes(body.accion)) {

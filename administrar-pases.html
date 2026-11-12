@@ -5,6 +5,14 @@
 <form id="acceso-pases"><label for="clave-pases">Clave de recepción</label><input id="clave-pases" type="password" required autocomplete="current-password"><button class="btn" type="submit">Entrar</button></form>
 <p id="estado-pases" role="status" aria-live="polite"></p>
 <div id="panel-pases" hidden>
+  <section id="acomodo-pases" aria-labelledby="titulo-acomodo">
+    <div class="encabezado-acomodo"><div><span class="eyebrow">Organización de invitados</span><h2 id="titulo-acomodo">Acomodo de mesas</h2></div><nav aria-label="Atajos de organización"><a href="#movimientos-sugeridos">Sugerencias ↓</a><a href="#buscar-pases">Lista de pases ↓</a></nav></div>
+    <div id="totales-acomodo" class="totales-acomodo"></div>
+    <div class="controles-acomodo"><div><label for="filtro-mesas">Mostrar mesas</label><select id="filtro-mesas"><option value="todas">Todas las mesas</option><option value="ocupadas">Con invitados o reservas</option><option value="disponibles">Con lugares libres</option></select></div><p>Abre una mesa para ver quién está sentado ahí.</p></div>
+    <div id="mapa-mesas" class="mapa-mesas"></div>
+    <div id="sin-mesa-pases" hidden></div>
+    <details id="movimientos-sugeridos" class="sugerencias-acomodo" open><summary>Movimientos sugeridos</summary><p>Revisa cada propuesta antes de aplicarla. Los lugares disponibles se vuelven a comprobar al guardar.</p><div id="sugerencias-mesas"></div></details>
+  </section>
   <div class="busqueda-pases"><label for="buscar-pases">Buscar por nombre, familia, mesa o código</label><input id="buscar-pases" type="search" autocomplete="off" placeholder="Escribe el nombre del invitado"><button id="actualizar-pases" class="btn secundario" type="button">Actualizar pases</button></div>
   <label class="filtro-retirados"><input id="mostrar-retirados" type="checkbox"> Mostrar pases retirados</label><p id="resumen-pases"></p>
   <button id="descargar-excel" class="btn" type="button">Descargar confirmados en Excel</button>
@@ -12,4 +20,17 @@
   <p class="ayuda">Puedes recuperar un pase individual o compartir juntos los de una familia. WhatsApp te permitirá elegir al contacto y enviar el mensaje. Reenviar conserva el mismo QR y no registra otra confirmación ni borra una entrada ya utilizada.</p>
   <div id="familias-pases"></div>
   <div class="enlaces-gestion"><a href="/recepcion">Ir a recepción</a><button id="salir-pases" class="salir" type="button">Cerrar sesión</button></div>
-</div></main><script src="administrar-pases.js" type="module"></script></body></html>
+</div></main>
+<dialog id="dialogo-mesa" aria-labelledby="titulo-movimiento">
+  <div class="cabecera-movimiento"><div><span class="eyebrow">Vista previa</span><h2 id="titulo-movimiento">Probar movimiento</h2></div><button class="salir" id="cerrar-movimiento" type="button">Cerrar</button></div>
+  <p id="invitado-movimiento"></p>
+  <form id="form-movimiento"><fieldset id="campos-movimiento">
+    <label class="filtro-retirados" id="etiqueta-grupo-movimiento"><input id="grupo-movimiento" type="checkbox"> Mover también a sus acompañantes activos</label>
+    <label for="destino-movimiento">Mesa de destino</label><select id="destino-movimiento" required></select>
+    <button class="btn secundario" id="simular-movimiento" type="submit">Ver cómo quedaría</button>
+  </fieldset></form>
+  <p id="estado-movimiento" role="status" aria-live="polite"></p>
+  <div id="resultado-movimiento" hidden></div>
+  <button class="btn" id="aplicar-movimiento" type="button" hidden>Aplicar movimiento</button>
+</dialog>
+<script src="administrar-pases.js" type="module"></script></body></html>

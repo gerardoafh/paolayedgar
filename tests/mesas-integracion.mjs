@@ -3,7 +3,7 @@ import { PGlite } from '@electric-sql/pglite';
 import assert from 'node:assert/strict';
 import { guardarConfirmacion, validarConfirmacion } from '../lib/confirmaciones.js';
 import { generarPases } from '../lib/pases.js';
-import { actualizarMesas } from '../lib/mesas.js';
+import { actualizarMesas, previsualizarCambioMesa } from '../lib/mesas.js';
 import { randomUUID } from 'node:crypto';
 const db = new PGlite();
 const sql = (strings, ...values) => {
@@ -52,7 +52,17 @@ try {
   await confirmar(['Nueva confirmación de ejemplo'], 'Familiares de la novia');
   manuales = await sql`SELECT mesa FROM pases_boda WHERE confirmacion_id = ${novia.datos.id}`;
   assert(manuales.every(p => p.mesa === 14));
-  await actualizarMesas(sql, { id: persona.id, mesa: 15, grupo: false });
+  const cambio = { id: persona.id, mesa: 15, grupo: false };
+  const [antesPrevia] = await sql`SELECT revision FROM control_mesas_boda WHERE id = 1`;
+  const previa = await previsualizarCambioMesa(sql, cambio);
+  assert.deepEqual(previa.movimientos.map(m => [m.id, m.desde, m.hasta]), [[persona.id, 14, 15]]);
+  assert.deepEqual(await sql`SELECT revision FROM control_mesas_boda WHERE id = 1`, [antesPrevia]);
+  assert.equal((await sql`SELECT mesa FROM pases_boda WHERE id = ${persona.id}`)[0].mesa, 14);
+  const [otro] = await sql`SELECT id FROM pases_boda WHERE nombre = 'Nueva confirmación de ejemplo'`;
+  await actualizarMesas(sql, { id: otro.id, mesa: 15, grupo: false });
+  await assert.rejects(actualizarMesas(sql, { ...cambio, huella: previa.huella }), /El acomodo cambió/);
+  const nuevaPrevia = await previsualizarCambioMesa(sql, cambio);
+  await actualizarMesas(sql, { ...cambio, huella: nuevaPrevia.huella });
   const [individual] = await sql`SELECT mesa, mesa_manual FROM pases_boda WHERE id = ${persona.id}`;
   assert.equal(individual.mesa, 15); assert.equal(individual.mesa_manual, 15);
   await assert.rejects(actualizarMesas(sql, { id: persona.id, mesa: 99, grupo: false }), /mesa válida/);

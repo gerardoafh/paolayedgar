@@ -1,8 +1,17 @@
 import { enlaceWhatsApp } from './lib/reenvio.js';
+import { agruparConfirmados, opcionesMovimiento, sugerirMovimientos } from './lib/vista-mesas.js';
 const $ = id => document.getElementById(id);
 let clave = '', pases = [], mesas = [], ocupado = false;
 const normalizar = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 const status = value => $('estado-pases').textContent = value;
+const nodo = (tag, texto = '', clase = '') => {
+  const el = document.createElement(tag); el.textContent = texto; el.className = clase; return el;
+};
+let personaMovimiento, movimientoRevisado;
+const dialogo = $('dialogo-mesa');
+const mensajeMovimiento = texto => $('estado-movimiento').textContent = texto;
+const nombreMesa = numero => mesas.find(m => m.numero === numero)?.texto || 'Sin mesa';
+const numeroPersonas = n => `${n} ${n === 1 ? 'persona' : 'personas'}`;
 const link = (text, url, secondary = false) => {
   const a = document.createElement('a'); a.className = 'btn' + (secondary ? ' secundario' : '');
   a.textContent = text; a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer'; return a;
@@ -10,21 +19,97 @@ const link = (text, url, secondary = false) => {
 function salir() {
   clave = ''; pases = []; mesas = []; $('clave-pases').value = ''; $('buscar-pases').value = '';
   $('familias-pases').replaceChildren(); $('panel-pases').hidden = true; $('acceso-pases').hidden = false;
+  for (const id of ['mapa-mesas', 'totales-acomodo', 'sin-mesa-pases', 'sugerencias-mesas', 'resultado-movimiento']) $(id).replaceChildren();
+  if (dialogo.open) dialogo.close();
+  personaMovimiento = movimientoRevisado = null;
 }
-async function cambiarMesa(pase, mesa, grupo, boton) {
-  if (ocupado) return;
-  if (!confirm(`¿Mover ${grupo ? 'a todo el grupo de ' : 'a '}${pase.nombre} a ${mesas.find(m => m.numero === mesa)?.texto}?`)) return;
-  ocupado = true; boton.disabled = true; status('Guardando cambio de mesa…');
+function limpiarSimulacion() {
+  movimientoRevisado = null;
+  $('resultado-movimiento').hidden = true; $('resultado-movimiento').replaceChildren();
+  $('aplicar-movimiento').hidden = true; mensajeMovimiento('');
+}
+function opcionesDestino(destino) {
+  limpiarSimulacion();
+  const select = $('destino-movimiento');
+  const grupo = agruparConfirmados(pases).get(personaMovimiento.confirmacionId) || [personaMovimiento];
+  const personas = $('grupo-movimiento').checked ? grupo : [personaMovimiento];
+  const opciones = opcionesMovimiento(mesas, personas);
+  const placeholder = nodo('option', 'Selecciona una mesa'); placeholder.value = '';
+  select.replaceChildren(placeholder);
+  for (const mesa of opciones) {
+    const motivo = !mesa.necesarios ? ' · Sin cambio' : !mesa.posible ? ' · No caben' : '';
+    const option = nodo('option', `${mesa.texto} · ${mesa.disponibles} libres${motivo}`);
+    option.value = mesa.numero; option.disabled = !mesa.posible;
+    select.append(option);
+  }
+  select.value = opciones.some(m => m.numero === Number(destino) && m.posible) ? String(destino) : '';
+  const posibles = opciones.filter(m => m.posible).length;
+  $('simular-movimiento').disabled = !posibles;
+  if (!posibles) mensajeMovimiento('No hay otra mesa con espacio suficiente para esta selección.');
+}
+function abrirMovimiento(pase, destino, moverGrupo = true) {
+  if (ocupado || !clave) return;
+  personaMovimiento = pase;
+  const cantidad = agruparConfirmados(pases).get(pase.confirmacionId)?.length || 1;
+  $('invitado-movimiento').textContent = `${pase.nombre} · ${nombreMesa(pase.mesa)}`;
+  $('etiqueta-grupo-movimiento').hidden = cantidad < 2;
+  $('grupo-movimiento').checked = cantidad > 1 && moverGrupo;
+  opcionesDestino(destino);
+  dialogo.showModal();
+}
+function botonMovimiento(pase, texto = 'Probar cambio de mesa', destino, grupo = true) {
+  const boton = nodo('button', texto, 'btn secundario'); boton.type = 'button';
+  boton.setAttribute('aria-label', texto + ': ' + pase.nombre);
+  boton.addEventListener('click', () => abrirMovimiento(pase, destino, grupo));
+  return boton;
+}
+async function consultarMovimiento(accion, datos) {
+  const response = await fetch('/api/recepcion', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + clave },
+    body: JSON.stringify({ accion, ...datos }), signal: AbortSignal.timeout(25000)
+  });
+  const data = await response.json();
+  if (response.status === 401) salir();
+  if (!response.ok) throw new Error(data.error || 'No pudimos consultar el movimiento.');
+  return data;
+}
+function bloqueoMovimiento(bloquear) {
+  ocupado = bloquear;
+  for (const id of ['campos-movimiento', 'aplicar-movimiento', 'cerrar-movimiento']) $(id).disabled = bloquear;
+}
+async function simularMovimiento(event) {
+  event.preventDefault();
+  if (ocupado || !personaMovimiento) return;
+  const datos = { id: personaMovimiento.id, mesa: Number($('destino-movimiento').value), grupo: $('grupo-movimiento').checked };
+  limpiarSimulacion(); bloqueoMovimiento(true); mensajeMovimiento('Calculando cómo quedaría el acomodo…');
   try {
-    const response = await fetch('/api/recepcion', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + clave },
-      body: JSON.stringify({ accion: 'cambiar-mesa', id: pase.id, mesa, grupo }), signal: AbortSignal.timeout(25000)
-    });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || 'No se pudo cambiar la mesa.');
-    ocupado = false; await cargar(); status('Mesa actualizada. El pase y recepción ya muestran el nuevo acomodo. Si tenían una imagen descargada, reenvía el pase actualizado.');
-  } catch (error) { status(error.name === 'TimeoutError' ? 'No pudimos comprobar el cambio. Actualiza la lista antes de volver a intentarlo.' : error.message); }
-  finally { ocupado = false; boton.disabled = false; }
+    const { previa } = await consultarMovimiento('previsualizar-mesa', datos);
+    if (!previa.movimientos.length) { mensajeMovimiento('Las personas seleccionadas ya están en esa mesa.'); return; }
+    const resultado = $('resultado-movimiento');
+    resultado.append(nodo('h3', `${numeroPersonas(previa.movimientos.length)} cambiarían de mesa`));
+    const lista = nodo('ul');
+    for (const m of previa.movimientos) lista.append(nodo('li', `${m.nombre}: ${nombreMesa(m.desde)} → ${nombreMesa(m.hasta)}${m.adicional ? ' (ajuste adicional)' : ''}`));
+    resultado.append(lista, nodo('h3', 'Ocupación: antes → después'));
+    const ocupacion = nodo('ul');
+    for (const m of previa.mesas) ocupacion.append(nodo('li', `${m.texto}: ${m.antes} → ${m.despues} confirmados · ${m.disponibles} libres${m.reservados ? ` · ${m.reservados} reservados` : ''}`));
+    resultado.append(ocupacion); resultado.hidden = false;
+    movimientoRevisado = { ...datos, huella: previa.huella };
+    $('aplicar-movimiento').hidden = false; mensajeMovimiento('Vista previa lista. El acomodo sigue igual hasta que apliques el movimiento.');
+  } catch (error) { mensajeMovimiento(error.name === 'TimeoutError' ? 'La vista previa tardó demasiado. Intenta otra vez.' : error.message); }
+  finally { bloqueoMovimiento(false); }
+}
+async function aplicarMovimiento() {
+  if (ocupado || !movimientoRevisado) return;
+  bloqueoMovimiento(true); mensajeMovimiento('Guardando el movimiento…');
+  try {
+    await consultarMovimiento('cambiar-mesa', movimientoRevisado);
+    dialogo.close(); bloqueoMovimiento(false);
+    const actualizada = await cargar();
+    status(actualizada ? 'Movimiento guardado. Los pases en línea y recepción ya muestran las mesas actualizadas.' : 'Movimiento guardado. Pulsa Actualizar pases para ver el nuevo acomodo.');
+  } catch (error) {
+    limpiarSimulacion();
+    mensajeMovimiento(error.name === 'TimeoutError' ? 'No pudimos comprobar el cambio. Cierra esta ventana y actualiza la lista antes de volver a intentarlo.' : error.message);
+  } finally { bloqueoMovimiento(false); }
 }
 async function descargarExcel() {
   if (ocupado || !clave) return;
@@ -63,6 +148,58 @@ async function cambiarEstado(pase) {
   } catch (error) { status(error.message); }
   finally { ocupado = false; }
 }
+function renderAcomodo() {
+  const activos = pases.filter(p => p.activo !== false);
+  const sinMesa = activos.filter(p => !p.mesa);
+  const libres = mesas.reduce((n, m) => n + m.disponibles, 0);
+  const reservas = mesas.reduce((n, m) => n + (m.reservas?.length || 0), 0);
+  const totales = $('totales-acomodo'); totales.replaceChildren();
+  for (const [cantidad, etiqueta] of [[activos.length, 'Confirmados'], [activos.length - sinMesa.length, 'Con mesa'], [sinMesa.length, 'Sin mesa'], [libres, 'Lugares libres']]) {
+    const item = nodo('div'); item.append(nodo('strong', cantidad), nodo('span', etiqueta)); totales.append(item);
+  }
+  const abiertas = new Set([...$('mapa-mesas').querySelectorAll('details[open]')].map(m => m.dataset.numero));
+  const mapa = $('mapa-mesas'); mapa.replaceChildren();
+  const filtro = $('filtro-mesas').value;
+  for (const mesa of mesas) {
+    const invitados = activos.filter(p => p.mesa === mesa.numero);
+    const reservados = mesa.reservas || [];
+    if (filtro === 'disponibles' && !mesa.disponibles || filtro === 'ocupadas' && !invitados.length && !reservados.length) continue;
+    const tarjeta = nodo('details', '', 'mesa-card'); tarjeta.dataset.numero = mesa.numero; tarjeta.open = abiertas.has(String(mesa.numero));
+    const resumen = nodo('summary');
+    resumen.append(nodo('strong', mesa.numero <= 2 ? `Imperial ${mesa.numero}` : `Mesa ${mesa.numero}`), nodo('span', `${invitados.length}/${mesa.capacidad} confirmados · ${mesa.disponibles} libres`, 'detalle-cupo'));
+    const medidor = nodo('progress'); medidor.max = mesa.capacidad; medidor.value = mesa.capacidad - mesa.disponibles; medidor.setAttribute('aria-label', `Lugares ocupados o reservados en ${mesa.texto}`);
+    tarjeta.append(resumen, medidor);
+    if (mesa.categoria) tarjeta.append(nodo('p', mesa.categoria, 'categoria-mesa'));
+    const lista = nodo('ul', '', 'invitados-mesa');
+    for (const p of invitados) {
+      const item = nodo('li'); item.append(nodo('strong', p.nombre), nodo('span', p.relacion + (p.mesaManual ? ' · Acomodo manual' : '')), botonMovimiento(p, 'Probar movimiento'));
+      lista.append(item);
+    }
+    for (const nombre of reservados) lista.append(nodo('li', `${nombre} · Lugar reservado`));
+    tarjeta.append(lista); if (!lista.children.length) tarjeta.append(nodo('p', 'Mesa disponible.'));
+    mapa.append(tarjeta);
+  }
+  if (!mapa.children.length) mapa.append(nodo('p', 'No hay mesas con ese filtro.'));
+  const pendientes = $('sin-mesa-pases'); pendientes.replaceChildren(); pendientes.hidden = !sinMesa.length;
+  if (sinMesa.length) {
+    pendientes.append(nodo('h3', 'Confirmados pendientes de mesa'));
+    const lista = nodo('ul', '', 'invitados-mesa');
+    for (const p of sinMesa) { const item = nodo('li', p.nombre); item.append(botonMovimiento(p, 'Buscar mesa')); lista.append(item); }
+    pendientes.append(lista);
+  }
+  const sugerencias = $('sugerencias-mesas'); sugerencias.replaceChildren();
+  if (reservas) sugerencias.append(nodo('p', `${reservas} ${reservas === 1 ? 'lugar reservado' : 'lugares reservados'} para los papás, aparte de los confirmados.`, 'nota-reservas'));
+  const propuestas = sugerirMovimientos(pases, mesas);
+  if (!propuestas.length) sugerencias.append(nodo('p', 'No hay propuestas prioritarias. Abre una mesa o busca un pase para probar otros movimientos.'));
+  for (const p of propuestas.slice(0, 6)) {
+    const item = nodo('article', '', 'propuesta-mesa');
+    item.append(nodo('h3', p.motivo), nodo('p', `${p.titular.nombre} · ${numeroPersonas(p.cantidad)}`));
+    if (p.destino) item.append(nodo('p', `Destino sugerido: ${p.destino.texto} · ${p.destino.disponibles} libres`), botonMovimiento(p.titular, 'Revisar propuesta', p.destino.numero));
+    else item.append(nodo('p', 'No hay cupo para el grupo completo. Puedes probar un cambio individual.'), botonMovimiento(p.titular, 'Buscar mesa', undefined, false));
+    sugerencias.append(item);
+  }
+  if (propuestas.length > 6) sugerencias.append(nodo('p', 'Se muestran las primeras 6 propuestas. Puedes consultar más opciones desde cada mesa o pase.'));
+}
 function render() {
   const q = normalizar($('buscar-pases').value.trim());
   const grupos = new Map();
@@ -99,24 +236,7 @@ function render() {
       const retirar = document.createElement('button'); retirar.type = 'button'; retirar.className = 'btn secundario'; retirar.textContent = pase.activo === false ? 'Restaurar pase' : 'Retirar pase';
       retirar.addEventListener('click', () => cambiarEstado(pase)); acciones.append(retirar);
       persona.append(nombre, detail, estado, acciones); section.append(persona);
-      if (pase.activo !== false) {
-        const form = document.createElement('form'); form.className = 'cambio-mesa';
-        const label = document.createElement('label'); label.textContent = 'Cambiar mesa de ' + pase.nombre;
-        const select = document.createElement('select'); select.id = 'mesa-' + pase.id; label.htmlFor = select.id;
-        select.required = true;
-        const placeholder = document.createElement('option'); placeholder.value = ''; placeholder.textContent = 'Selecciona una mesa'; select.append(placeholder);
-        for (const mesa of mesas) {
-          const option = document.createElement('option'); option.value = mesa.numero;
-          option.textContent = mesa.texto + ' · ' + mesa.disponibles + ' libres / ' + mesa.capacidad + ' lugares';
-          option.selected = mesa.numero === pase.mesa; select.append(option);
-        }
-        const grupo = document.createElement('input'); grupo.type = 'checkbox'; grupo.checked = true;
-        const familia = document.createElement('label'); familia.className = 'filtro-retirados'; familia.append(grupo, document.createTextNode('Mover también a todos sus acompañantes activos'));
-        const guardar = document.createElement('button'); guardar.type = 'submit'; guardar.className = 'btn secundario'; guardar.textContent = 'Guardar mesa';
-        form.append(label, select, familia, guardar);
-        form.addEventListener('submit', event => { event.preventDefault(); cambiarMesa(pase, Number(select.value), grupo.checked, guardar); });
-        persona.append(form);
-      }
+      if (pase.activo !== false) acciones.append(botonMovimiento(pase));
     }
     $('familias-pases').append(section);
   }
@@ -134,7 +254,7 @@ async function cargar() {
     if (!response.ok) throw new Error(data.error || 'No pudimos consultar los pases.');
     pases = data.pases.filter(p => typeof p.url === 'string' && /^https:\/\/paola-edgar\.vercel\.app\/pase#[a-f0-9]{64}$/.test(p.url));
     mesas = data.mesas || [];
-    $('panel-pases').hidden = false; $('acceso-pases').hidden = true; $('clave-pases').value = ''; render(); status('');
+    $('panel-pases').hidden = false; $('acceso-pases').hidden = true; $('clave-pases').value = ''; renderAcomodo(); render(); status(''); return true;
   } catch (error) { status(error.name === 'TimeoutError' ? 'La consulta tardó demasiado. Intenta nuevamente.' : error.message); }
   finally { ocupado = false; $('actualizar-pases').disabled = false; }
 }
@@ -145,5 +265,13 @@ $('acceso-pases').addEventListener('submit', async event => {
 $('actualizar-pases').addEventListener('click', cargar);
 $('descargar-excel').addEventListener('click', descargarExcel);
 $('buscar-pases').addEventListener('input', render);
+$('filtro-mesas').addEventListener('change', renderAcomodo);
+$('grupo-movimiento').addEventListener('change', () => opcionesDestino($('destino-movimiento').value));
+$('destino-movimiento').addEventListener('change', limpiarSimulacion);
+$('form-movimiento').addEventListener('submit', simularMovimiento);
+$('aplicar-movimiento').addEventListener('click', aplicarMovimiento);
+$('cerrar-movimiento').addEventListener('click', () => dialogo.close());
+dialogo.addEventListener('cancel', event => { if (ocupado) event.preventDefault(); });
+dialogo.addEventListener('close', () => { limpiarSimulacion(); personaMovimiento = null; });
 $('mostrar-retirados').addEventListener('change', cargar);
 $('salir-pases').addEventListener('click', () => { salir(); status('Sesión cerrada.'); });
