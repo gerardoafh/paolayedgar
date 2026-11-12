@@ -22,6 +22,7 @@ function salir() {
   for (const id of ['mapa-mesas', 'totales-acomodo', 'sin-mesa-pases', 'sugerencias-mesas', 'resultado-movimiento']) $(id).replaceChildren();
   if (dialogo.open) dialogo.close();
   personaMovimiento = movimientoRevisado = null;
+  $('estado-mesas-pdf').textContent = '';
 }
 function limpiarSimulacion() {
   movimientoRevisado = null;
@@ -111,21 +112,22 @@ async function aplicarMovimiento() {
     mensajeMovimiento(error.name === 'TimeoutError' ? 'No pudimos comprobar el cambio. Cierra esta ventana y actualiza la lista antes de volver a intentarlo.' : error.message);
   } finally { bloqueoMovimiento(false); }
 }
-async function descargarExcel() {
+async function descargarReporte({ id, accion, nombre, mensaje, avisar = status }) {
   if (ocupado || !clave) return;
-  ocupado = true; $('descargar-excel').disabled = true; status('Preparando reporte de confirmados…');
+  const boton = $(id);
+  ocupado = true; boton.disabled = true; avisar('Preparando el archivo…');
   try {
     const response = await fetch('/api/recepcion', {
       method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + clave },
-      body: JSON.stringify({ accion: 'reporte' }), signal: AbortSignal.timeout(30000)
+      body: JSON.stringify({ accion }), signal: AbortSignal.timeout(30000)
     });
     if (!response.ok) { const error = await response.json(); throw new Error(error.error || 'No se pudo generar el reporte.'); }
     const url = URL.createObjectURL(await response.blob());
-    const a = document.createElement('a'); a.href = url; a.download = 'confirmados-paola-edgar.xlsx';
+    const a = document.createElement('a'); a.href = url; a.download = nombre;
     document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000);
-    status('Reporte Excel descargado: confirmados activos y distribución de mesas.');
-  } catch (error) { status(error.name === 'TimeoutError' ? 'El reporte tardó demasiado. Intenta nuevamente.' : error.message); }
-  finally { ocupado = false; $('descargar-excel').disabled = false; }
+    avisar(mensaje);
+  } catch (error) { avisar(error.name === 'TimeoutError' ? 'El reporte tardó demasiado. Intenta nuevamente.' : error.message); }
+  finally { ocupado = false; boton.disabled = false; }
 }
 async function copiar(text) {
   try { await navigator.clipboard.writeText(text); status('Enlace copiado. Ya puedes pegarlo en WhatsApp o donde prefieras.'); }
@@ -263,7 +265,15 @@ $('acceso-pases').addEventListener('submit', async event => {
   await cargar(); event.submitter.disabled = false;
 });
 $('actualizar-pases').addEventListener('click', cargar);
-$('descargar-excel').addEventListener('click', descargarExcel);
+$('descargar-excel').addEventListener('click', () => descargarReporte({
+  id: 'descargar-excel', accion: 'reporte', nombre: 'confirmados-paola-edgar.xlsx',
+  mensaje: 'Reporte Excel descargado: confirmados activos y distribución de mesas.'
+}));
+$('descargar-mesas-pdf').addEventListener('click', () => descargarReporte({
+  id: 'descargar-mesas-pdf', accion: 'reporte-mesas-pdf', nombre: 'acomodo-mesas-paola-edgar.pdf',
+  mensaje: 'PDF descargado. Ábrelo para imprimir el acomodo.',
+  avisar: texto => $('estado-mesas-pdf').textContent = texto
+}));
 $('buscar-pases').addEventListener('input', render);
 $('filtro-mesas').addEventListener('change', renderAcomodo);
 $('grupo-movimiento').addEventListener('change', () => opcionesDestino($('destino-movimiento').value));

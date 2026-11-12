@@ -1,6 +1,6 @@
 import { neon } from '@neondatabase/serverless';
 import { autorizarRecepcion, extraerToken, prepararRecepcion, validarEntrada, resumenEntradas, listarLlegadas, listarPasesParaReenvio, cambiarEstadoPase } from '../lib/recepcion.js';
-import { actualizarMesas, etiquetaMesa, prepararMesas, previsualizarCambioMesa } from '../lib/mesas.js';
+import { actualizarMesas, etiquetaMesa, leerPasesMesas, prepararMesas, previsualizarCambioMesa } from '../lib/mesas.js';
 import { crearReporteConfirmados } from '../lib/reporte-confirmados.js';
 
 export default async function handler(req, res) {
@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   let body;
   try { body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body; }
   catch { return res.status(400).json({ error: 'Solicitud inválida.' }); }
-  if (!['resumen', 'llegadas', 'mesas', 'pases', 'reporte', 'cambiar-mesa', 'previsualizar-mesa', 'retirar', 'restaurar', 'consultar', 'registrar'].includes(body?.accion)) return res.status(400).json({ error: 'Acción inválida.' });
+  if (!['resumen', 'llegadas', 'mesas', 'pases', 'reporte', 'reporte-mesas-pdf', 'cambiar-mesa', 'previsualizar-mesa', 'retirar', 'restaurar', 'consultar', 'registrar'].includes(body?.accion)) return res.status(400).json({ error: 'Acción inválida.' });
   const mueveMesa = ['cambiar-mesa', 'previsualizar-mesa'].includes(body.accion);
   if ((mueveMesa || ['retirar', 'restaurar'].includes(body.accion)) && (typeof body.id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(body.id))) return res.status(400).json({ error: 'Identificador inválido.' });
   if (mueveMesa && (!Number.isInteger(body.mesa) || body.mesa < 1 || body.mesa > 21 || typeof body.grupo !== 'boolean')) return res.status(400).json({ error: 'Revisa la mesa y las personas que deseas mover.' });
@@ -23,6 +23,13 @@ export default async function handler(req, res) {
   if (!connection) return res.status(503).json({ error: 'No se pudo conectar. Intenta nuevamente.' });
   try {
     const sql = neon(connection);
+    if (body.accion === 'reporte-mesas-pdf') {
+      const { crearReporteMesasPdf } = await import('../lib/reporte-mesas-pdf.js');
+      const archivo = await crearReporteMesasPdf(await leerPasesMesas(sql));
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename="acomodo-mesas-paola-edgar.pdf"');
+      return res.send(archivo);
+    }
     if (body.accion === 'previsualizar-mesa') return res.json({ ok: true, previa: await previsualizarCambioMesa(sql, body) });
     await prepararRecepcion(sql);
     if (['retirar', 'restaurar'].includes(body.accion)) {
@@ -64,6 +71,7 @@ export default async function handler(req, res) {
   } catch (error) {
     if (error.status === 409) return res.status(409).json({ error: error.message });
     console.error('Error en el control de recepción.');
+    if (body.accion === 'reporte-mesas-pdf') return res.status(503).json({ error: 'No pudimos generar el PDF. Intenta nuevamente.' });
     return res.status(503).json({ error: 'No pudimos verificar la entrada. Revisa la conexión y vuelve a intentar.' });
   }
 }
