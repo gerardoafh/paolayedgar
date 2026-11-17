@@ -267,7 +267,7 @@ $('acceso-pases').addEventListener('submit', async event => {
 $('actualizar-pases').addEventListener('click', cargar);
 $('descargar-excel').addEventListener('click', () => descargarReporte({
   id: 'descargar-excel', accion: 'reporte', nombre: 'confirmados-paola-edgar.xlsx',
-  mensaje: 'Reporte Excel descargado: confirmados activos y distribución de mesas.'
+  mensaje: 'Excel descargado: confirmados, reservas, invitados por mesa y movimientos.'
 }));
 $('descargar-mesas-pdf').addEventListener('click', () => descargarReporte({
   id: 'descargar-mesas-pdf', accion: 'reporte-mesas-pdf', nombre: 'acomodo-mesas-paola-edgar.pdf',

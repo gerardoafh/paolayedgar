@@ -42,8 +42,11 @@ export default async function handler(req, res) {
     const plan = await actualizarMesas(sql, body.accion === 'cambiar-mesa' ? body : null);
     if (body.accion === 'cambiar-mesa') return res.json({ ok: true });
     if (body.accion === 'reporte') {
-      const pases = await listarPasesParaReenvio(sql);
-      const archivo = await crearReporteConfirmados(pases, plan);
+      const [pases, historial] = await Promise.all([
+        leerPasesMesas(sql),
+        sql`SELECT revision, fecha, personas FROM movimientos_mesas_boda ORDER BY revision DESC`
+      ]);
+      const archivo = await crearReporteConfirmados(pases, plan, historial);
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       res.setHeader('Content-Disposition', 'attachment; filename="confirmados-paola-edgar.xlsx"');
       return res.send(Buffer.from(archivo));

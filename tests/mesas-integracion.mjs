@@ -60,11 +60,18 @@ try {
   assert.equal((await sql`SELECT mesa FROM pases_boda WHERE id = ${persona.id}`)[0].mesa, 14);
   const [otro] = await sql`SELECT id FROM pases_boda WHERE nombre = 'Nueva confirmación de ejemplo'`;
   await actualizarMesas(sql, { id: otro.id, mesa: 15, grupo: false });
+  const eventosAntes = await sql`SELECT revision, personas FROM movimientos_mesas_boda ORDER BY revision`;
+  assert.equal(eventosAntes.length, 2);
   await assert.rejects(actualizarMesas(sql, { ...cambio, huella: previa.huella }), /El acomodo cambió/);
+  assert.deepEqual(await sql`SELECT revision, personas FROM movimientos_mesas_boda ORDER BY revision`, eventosAntes);
   const nuevaPrevia = await previsualizarCambioMesa(sql, cambio);
   await actualizarMesas(sql, { ...cambio, huella: nuevaPrevia.huella });
   const [individual] = await sql`SELECT mesa, mesa_manual FROM pases_boda WHERE id = ${persona.id}`;
   assert.equal(individual.mesa, 15); assert.equal(individual.mesa_manual, 15);
+  const [evento] = await sql`SELECT personas FROM movimientos_mesas_boda ORDER BY revision DESC LIMIT 1`;
+  assert.deepEqual(evento.personas.map(p => [p.nombre, p.rol, p.desde, p.hasta]), [
+    [familia[0], 'Principal', 14, 15], [familia[1], 'Acompañante', 14, 14], [familia[2], 'Acompañante', 14, 14]
+  ]);
   await assert.rejects(actualizarMesas(sql, { id: persona.id, mesa: 99, grupo: false }), /mesa válida/);
   console.log('Cambios manuales verificados en Postgres: grupo, persona, persistencia y validación.');
   console.log('Integración Postgres verificada: migración, parentescos, capacidad, asignación estable y revisión atómica.');
