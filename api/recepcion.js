@@ -2,6 +2,7 @@ import { neon } from '@neondatabase/serverless';
 import { autorizarRecepcion, extraerToken, prepararRecepcion, validarEntrada, resumenEntradas, listarLlegadas, listarPasesParaReenvio, cambiarEstadoPase } from '../lib/recepcion.js';
 import { actualizarMesas, etiquetaMesa, leerPasesMesas, prepararMesas, previsualizarCambioMesa } from '../lib/mesas.js';
 import { crearReporteConfirmados } from '../lib/reporte-confirmados.js';
+import { consultarGrupo, dominioPases, extraerTokenGrupo } from '../lib/pases.js';
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -23,6 +24,15 @@ export default async function handler(req, res) {
   if (!connection) return res.status(503).json({ error: 'No se pudo conectar. Intenta nuevamente.' });
   try {
     const sql = neon(connection);
+    const tokenGrupo = ['consultar', 'registrar'].includes(body.accion) && extraerTokenGrupo(body.qr);
+    if (tokenGrupo) {
+      if (body.accion !== 'consultar') return res.status(400).json({ error: 'Selecciona a la persona cuya entrada quieres registrar.' });
+      const grupo = await consultarGrupo(sql, tokenGrupo);
+      const pase = grupo ? { estado: 'grupo', nombre: grupo[0].nombre, invitados: grupo.map(p => ({
+        nombre: p.nombre, mesaTexto: etiquetaMesa(p.mesa), llego: Boolean(p.fecha_entrada), qr: dominioPases + '/pase#' + p.token
+      })) } : { estado: 'inactivo' };
+      return res.json({ ok: true, pase });
+    }
     if (body.accion === 'reporte-mesas-pdf') {
       const { crearReporteMesasPdf } = await import('../lib/reporte-mesas-pdf.js');
       const archivo = await crearReporteMesasPdf(await leerPasesMesas(sql));

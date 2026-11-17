@@ -116,10 +116,21 @@
       listaPases.replaceChildren();
       if (result.pases?.length) {
         const heading = document.createElement('h3');
-        heading.textContent = result.pases.length === 1 ? 'Tu pase digital' : 'Sus pases digitales';
+        heading.textContent = 'Tu pase de grupo';
         const help = document.createElement('p');
-        help.textContent = 'Hay un pase por persona. Abre cada uno y guárdalo como imagen para el día de la boda.';
+        help.textContent = 'Muéstralo en recepción. El mismo código funciona aunque lleguen por separado.';
         listaPases.append(heading, help);
+        const principal = result.pases[0];
+        if (typeof principal.url === 'string' && /^\/pase#[a-f0-9]{64}$/.test(principal.url)) {
+          const enlace = document.createElement('a');
+          enlace.href = principal.url.replace('/pase#', '/pase-grupo#');
+          enlace.target = '_blank'; enlace.rel = 'noopener noreferrer';
+          enlace.textContent = 'Ver o descargar el pase de ' + principal.nombre;
+          listaPases.append(enlace);
+        }
+        const individuales = document.createElement('details');
+        const resumen = document.createElement('summary'); resumen.textContent = 'Ver pases individuales';
+        individuales.append(resumen); listaPases.append(individuales);
         for (const pase of result.pases) {
           if (typeof pase.url !== 'string' || !/^\/pase#[a-f0-9]{64}$/.test(pase.url)) continue;
           const link = document.createElement('a');
@@ -127,7 +138,7 @@
           link.append(document.createTextNode(pase.nombre));
           const label = document.createElement('span');
           label.textContent = (pase.mesaTexto ? pase.mesaTexto + ' · ' : '') + 'VER Y DESCARGAR PASE · ' + pase.codigo;
-          link.append(label); listaPases.append(link);
+          link.append(label); individuales.append(link);
         }
         listaPases.hidden = false;
         if (result.mesasPendientes) status.textContent = 'Tu asistencia está registrada. La mesa de alguna persona está pendiente de acomodo; puedes descargar tus pases y consultarlo con los novios.';

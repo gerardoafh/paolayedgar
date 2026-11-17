@@ -1,4 +1,4 @@
-import { enlaceWhatsApp } from './lib/reenvio.js';
+import { enlaceWhatsApp, enlacePaseGrupo, whatsappPaseGrupo } from './lib/reenvio.js';
 import { agruparConfirmados, opcionesMovimiento, sugerirMovimientos } from './lib/vista-mesas.js';
 const $ = id => document.getElementById(id);
 let clave = '', pases = [], mesas = [], ocupado = false;
@@ -219,11 +219,17 @@ function render() {
   }
   for (const grupo of familias) {
     const section = document.createElement('article'); section.className = 'familia-pases';
-    const h = document.createElement('h2'); h.textContent = grupo[0].nombre + (grupo.length > 1 ? ' y acompañantes' : '');
+    const activos = grupo.filter(p => p.activo !== false);
+    const principal = activos[0] || grupo[0];
+    const h = document.createElement('h2'); h.textContent = principal.nombre + (activos.length > 1 ? ' y acompañantes' : '');
     const relacion = document.createElement('p'); relacion.className = 'relacion'; relacion.textContent = grupo[0].relacion;
     section.append(h, relacion);
-    const activos = grupo.filter(p => p.activo !== false);
-    if (activos.length > 1) section.append(link('Enviar todos los pases por WhatsApp', enlaceWhatsApp(activos)));
+    if (activos.length) {
+      const url = enlacePaseGrupo(principal.url);
+      const accionesGrupo = nodo('div', '', 'acciones-pase');
+      accionesGrupo.append(link('Ver / descargar pase del grupo', url, true), link('Compartir pase del grupo por WhatsApp', whatsappPaseGrupo(url)));
+      section.append(accionesGrupo);
+    }
     for (const pase of grupo) {
       const persona = document.createElement('div'); persona.className = 'persona-pase';
       const nombre = document.createElement('h3'); nombre.textContent = pase.nombre;

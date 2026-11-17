@@ -1,6 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { generarPases, consultarPase, tokenValido } from '../lib/pases.js';
+import { generarPases, consultarGrupo, consultarPase, extraerTokenGrupo, resumirMesasGrupo, tokenValido } from '../lib/pases.js';
+
+test('un pase de grupo exige el token del primer miembro activo y conserva mesas separadas', async () => {
+  const token = 'a'.repeat(64), otro = 'b'.repeat(64);
+  const grupo = [{ token, mesa: 3 }, { token: otro, mesa: 8 }, { mesa: 3 }, { mesa: null }];
+  assert.equal(extraerTokenGrupo('https://paola-edgar.vercel.app/pase-grupo#' + token), token);
+  assert.equal(extraerTokenGrupo('https://otro.example/pase-grupo#' + token), null);
+  assert.equal(extraerTokenGrupo('https://paola-edgar.vercel.app/pase#' + token), null);
+  assert.equal(await consultarGrupo(async () => grupo, token), grupo);
+  assert.equal(await consultarGrupo(async () => grupo, otro), null);
+  assert.deepEqual(resumirMesasGrupo(grupo), [{ mesa: 3, cantidad: 2 }, { mesa: 8, cantidad: 1 }, { mesa: null, cantidad: 1 }]);
+});
 
 test('rechaza tokens predecibles o con contenido SQL', async () => {
   assert(!tokenValido('abc'));

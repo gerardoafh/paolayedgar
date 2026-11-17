@@ -1,6 +1,6 @@
 import { neon } from '@neondatabase/serverless';
 import QRCode from 'qrcode';
-import { consultarPase, tokenValido } from '../lib/pases.js';
+import { consultarGrupo, consultarPase, dominioPases, resumirMesasGrupo, tokenValido } from '../lib/pases.js';
 import { prepararMesas, etiquetaMesa } from '../lib/mesas.js';
 
 export default async function handler(req, res) {
@@ -20,6 +20,16 @@ export default async function handler(req, res) {
   try {
     const sql = neon(connection);
     await prepararMesas(sql);
+    if (body.grupo === true) {
+      const invitados = await consultarGrupo(sql, body.token);
+      if (!invitados) return res.status(404).json({ error: 'Este pase de grupo ya no está disponible. Solicita el enlace actualizado a los novios.' });
+      const { id, nombre } = invitados[0];
+      const qr = await QRCode.toDataURL(dominioPases + '/pase-grupo#' + body.token, {
+        errorCorrectionLevel: 'M', margin: 4, width: 450
+      });
+      return res.status(200).json({ nombre, codigo: id.slice(0, 8).toUpperCase(), total: invitados.length,
+        mesas: resumirMesasGrupo(invitados), qr });
+    }
     const pase = await consultarPase(sql, body.token);
     if (!pase) return res.status(404).json({ error: 'No encontramos este pase. Revisa tu enlace o contacta a los novios.' });
     if (!pase.activo) return res.status(410).json({ error: 'Este pase ya no está activo. Contacta a los novios.' });

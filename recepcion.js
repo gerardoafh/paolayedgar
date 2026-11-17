@@ -1,6 +1,6 @@
 import QrScanner from './vendor/qr-scanner.min.js';
 const $ = id => document.getElementById(id);
-let clave = '', qrActual = '', ocupado = false, scanner;
+let clave = '', qrActual = '', qrGrupo = '', ocupado = false, scanner;
 let llegadas = [], refrescando = false;
 let distribucion = null;
 function mostrarMesas() {
@@ -82,7 +82,8 @@ function detener() {
   $('camara-detener').hidden = true; $('camara-iniciar').hidden = false;
 }
 function salir() {
-  detener(); clave = ''; qrActual = ''; $('clave-recepcion').value = '';
+  detener(); clave = ''; qrActual = ''; qrGrupo = ''; $('clave-recepcion').value = '';
+  $('invitados-entrada').replaceChildren();
   $('panel-recepcion').hidden = true; $('acceso-recepcion').hidden = false;
   $('resultado-entrada').hidden = true;
   llegadas = []; $('lista-llegadas').replaceChildren(); $('buscar-llegadas').value = '';
@@ -90,6 +91,7 @@ function salir() {
 }
 function resultado(pase) {
   const textos = {
+    grupo: ['Pase de grupo válido', 'Selecciona a cada persona conforme vaya llegando.'],
     valido: ['Pase válido', 'Asistencia confirmada. Puedes registrar la entrada.'],
     registrado: ['Entrada registrada', 'Bienvenido/a. Este pase ya quedó utilizado.'],
     utilizado: ['Este pase ya se utilizó', 'No registres otra entrada con este pase.'],
@@ -104,6 +106,14 @@ function resultado(pase) {
   $('mesa-entrada').textContent = pase.mesaTexto || '';
   $('detalle-entrada').textContent = detail + (pase.fecha_entrada ? ' Entrada: ' + new Date(pase.fecha_entrada).toLocaleString('es-MX', { timeZone: 'America/Mexico_City' }) + '.' : '');
   $('registrar-entrada').hidden = pase.estado !== 'valido';
+  const lista = $('invitados-entrada'); lista.replaceChildren();
+  $('volver-grupo-entrada').hidden = !qrGrupo || pase.estado === 'grupo';
+  if (pase.estado === 'grupo') for (const persona of pase.invitados) {
+    const boton = document.createElement('button'); boton.className = 'btn secundario'; boton.type = 'button';
+    boton.textContent = persona.nombre + ' · ' + persona.mesaTexto + (persona.llego ? ' · Ya llegó' : '');
+    boton.addEventListener('click', () => consultar(persona.qr, true));
+    lista.append(boton);
+  }
   const llegada = ['registrado', 'utilizado'].includes(pase.estado) && pase.fecha_entrada;
   $('avisar-llegada').hidden = !llegada;
   $('ayuda-aviso').hidden = !llegada;
@@ -114,11 +124,12 @@ function resultado(pase) {
   }
   $('resultado-entrada').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
-async function consultar(qr) {
+async function consultar(qr, desdeGrupo = false) {
   if (ocupado || !clave) return;
+  if (!desdeGrupo) qrGrupo = '';
   ocupado = true; qrActual = ''; detener(); status('Verificando pase…');
   $('resultado-entrada').hidden = true;
-  try { const data = await api('consultar', qr); qrActual = qr; resultado(data.pase); status(''); }
+  try { const data = await api('consultar', qr); qrActual = qr; if (data.pase.estado === 'grupo') qrGrupo = qr; resultado(data.pase); status(''); }
   catch (error) { status(error.name === 'TimeoutError' ? 'La conexión tardó demasiado. Vuelve a consultar antes de admitir al invitado.' : error.message); }
   finally { ocupado = false; }
 }
@@ -156,6 +167,7 @@ $('registrar-entrada').addEventListener('click', async event => {
   finally { ocupado = false; event.target.disabled = false; }
 });
 $('siguiente-pase').addEventListener('click', () => { qrActual = ''; $('resultado-entrada').hidden = true; $('enlace-qr').value = ''; status(''); $('camara-iniciar').click(); });
+$('volver-grupo-entrada').addEventListener('click', () => { if (qrGrupo) consultar(qrGrupo); });
 $('cerrar-recepcion').addEventListener('click', () => { salir(); status('Sesión cerrada.'); });
 document.addEventListener('visibilitychange', () => { if (document.hidden) detener(); });
 window.addEventListener('pagehide', () => scanner?.destroy());
