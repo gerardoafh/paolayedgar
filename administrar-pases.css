@@ -56,5 +56,8 @@
 .persona-plano:hover,.persona-plano.persona-elegida{border-color:#b77686;background:#f6e8ea}
 .reserva-plano{background:#f7eee2;padding:8px;border-radius:5px}
 .acciones-plano{text-align:right}
+.filtro-relacion-gestion{margin:16px 0;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:8px}
+.filtro-relacion-gestion label{margin:0 0 8px}.filtro-relacion-gestion select{width:100%;padding:12px;border:1px solid #aeb59a;border-radius:5px;background:var(--bg);font:inherit;font-size:1rem;color:var(--ink)}
+.mesa-coincide-filtro{box-shadow:0 0 0 4px #bdcba7}.mesa-fuera-filtro{opacity:.42}
 @media(max-width:900px){.layout-salon{grid-template-columns:minmax(0,1fr) 240px}.lienzo-salon{padding:7px}.mesa-salon{font-size:12px}}
 @media(max-width:690px){.layout-salon{grid-template-columns:1fr}.lateral-salon{order:-1}.grupos-plano{max-height:240px}.lienzo-salon{padding:8px}.mesa-salon{font-size:13px}}

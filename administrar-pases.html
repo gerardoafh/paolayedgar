@@ -10,6 +10,17 @@
     <div id="totales-acomodo" class="totales-acomodo"></div>
     <button id="descargar-mesas-pdf" class="btn" type="button">Descargar acomodo en PDF</button>
     <p id="estado-mesas-pdf" role="status"></p>
+    <div class="filtro-relacion-gestion">
+      <label for="filtro-relacion">Filtrar por familiares o amigos</label>
+      <select id="filtro-relacion">
+        <option value="">Todos los invitados</option>
+        <option>Familiares de la novia</option><option>Familiares del novio</option>
+        <option>Amigos de la novia</option><option>Amigos del novio</option>
+        <option>Hermanos de la novia</option><option>Hermanos del novio</option>
+        <option>Familiares de ambos</option><option>Amigos de ambos</option>
+      </select>
+      <p id="estado-filtro-relacion" role="status">Los totales y las descargas incluyen a todos los invitados.</p>
+    </div>
     <div id="plano-salon" class="plano-salon"></div>
     <div class="controles-acomodo"><div><label for="filtro-mesas">Mostrar mesas</label><select id="filtro-mesas"><option value="todas">Todas las mesas</option><option value="ocupadas">Con invitados o reservas</option><option value="disponibles">Con lugares libres</option></select></div><p>Abre una mesa para ver quién está sentado ahí.</p></div>
     <div id="mapa-mesas" class="mapa-mesas"></div>

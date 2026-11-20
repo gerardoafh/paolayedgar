@@ -1,5 +1,5 @@
 import { enlaceWhatsApp, enlacePaseGrupo, whatsappPaseGrupo } from './lib/reenvio.js';
-import { agruparConfirmados, opcionesMovimiento, sugerirMovimientos } from './lib/vista-mesas.js';
+import { agruparConfirmados, coincideRelacion, opcionesMovimiento, sugerirMovimientos } from './lib/vista-mesas.js';
 import { iniciarPlanoSalon } from './lib/plano-salon.js';
 const $ = id => document.getElementById(id);
 let clave = '', pases = [], mesas = [], ocupado = false;
@@ -13,12 +13,14 @@ const dialogo = $('dialogo-mesa');
 const mensajeMovimiento = texto => $('estado-movimiento').textContent = texto;
 const nombreMesa = numero => mesas.find(m => m.numero === numero)?.texto || 'Sin mesa';
 const numeroPersonas = n => `${n} ${n === 1 ? 'persona' : 'personas'}`;
-const planoSalon = iniciarPlanoSalon({ raiz: $('plano-salon'), obtenerPases: () => pases, obtenerMesas: () => mesas, mover: abrirMovimiento });
+const filtroRelacion = pase => coincideRelacion(pase.relacion, $('filtro-relacion').value);
+const planoSalon = iniciarPlanoSalon({ raiz: $('plano-salon'), obtenerPases: () => pases, obtenerMesas: () => mesas, coincideFiltro: filtroRelacion, mover: abrirMovimiento });
 const link = (text, url, secondary = false) => {
   const a = document.createElement('a'); a.className = 'btn' + (secondary ? ' secundario' : '');
   a.textContent = text; a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer'; return a;
 };
 function salir() {
+  $('filtro-relacion').value = '';
   clave = ''; pases = []; mesas = []; $('clave-pases').value = ''; $('buscar-pases').value = '';
   $('familias-pases').replaceChildren(); $('panel-pases').hidden = true; $('acceso-pases').hidden = false;
   for (const id of ['mapa-mesas', 'totales-acomodo', 'sin-mesa-pases', 'sugerencias-mesas', 'resultado-movimiento']) $(id).replaceChildren();
@@ -156,6 +158,10 @@ async function cambiarEstado(pase) {
 function renderAcomodo() {
   planoSalon.actualizar();
   const activos = pases.filter(p => p.activo !== false);
+  const filtrados = activos.filter(filtroRelacion);
+  const relacion = $('filtro-relacion').value;
+  $('estado-filtro-relacion').textContent = (relacion ? numeroPersonas(filtrados.length) + ' · ' + relacion + '. ' : '') +
+    'Los totales y las descargas incluyen a todos los invitados.';
   const sinMesa = activos.filter(p => !p.mesa);
   const libres = mesas.reduce((n, m) => n + m.disponibles, 0);
   const reservas = mesas.reduce((n, m) => n + (m.reservas?.length || 0), 0);
@@ -167,12 +173,15 @@ function renderAcomodo() {
   const mapa = $('mapa-mesas'); mapa.replaceChildren();
   const filtro = $('filtro-mesas').value;
   for (const mesa of mesas) {
-    const invitados = activos.filter(p => p.mesa === mesa.numero);
-    const reservados = mesa.reservas || [];
+    const todosMesa = activos.filter(p => p.mesa === mesa.numero);
+    const invitados = todosMesa.filter(filtroRelacion);
+    const parentescoReserva = mesa.numero === 1 ? 'Familiares de la novia' : mesa.numero === 2 ? 'Familiares del novio' : '';
+    const reservados = coincideRelacion(parentescoReserva, relacion) ? mesa.reservas || [] : [];
+    if (relacion && !invitados.length && !reservados.length) continue;
     if (filtro === 'disponibles' && !mesa.disponibles || filtro === 'ocupadas' && !invitados.length && !reservados.length) continue;
     const tarjeta = nodo('details', '', 'mesa-card'); tarjeta.dataset.numero = mesa.numero; tarjeta.open = abiertas.has(String(mesa.numero));
     const resumen = nodo('summary');
-    resumen.append(nodo('strong', mesa.numero <= 2 ? `Imperial ${mesa.numero}` : `Mesa ${mesa.numero}`), nodo('span', `${invitados.length}/${mesa.capacidad} confirmados · ${mesa.disponibles} libres`, 'detalle-cupo'));
+    resumen.append(nodo('strong', mesa.numero <= 2 ? `Imperial ${mesa.numero}` : `Mesa ${mesa.numero}`), nodo('span', `${todosMesa.length}/${mesa.capacidad} confirmados · ${mesa.disponibles} libres` + (relacion ? ` · ${invitados.length} con este filtro` : ''), 'detalle-cupo'));
     const medidor = nodo('progress'); medidor.max = mesa.capacidad; medidor.value = mesa.capacidad - mesa.disponibles; medidor.setAttribute('aria-label', `Lugares ocupados o reservados en ${mesa.texto}`);
     tarjeta.append(resumen, medidor);
     if (mesa.categoria) tarjeta.append(nodo('p', mesa.categoria, 'categoria-mesa'));
@@ -186,16 +195,17 @@ function renderAcomodo() {
     mapa.append(tarjeta);
   }
   if (!mapa.children.length) mapa.append(nodo('p', 'No hay mesas con ese filtro.'));
-  const pendientes = $('sin-mesa-pases'); pendientes.replaceChildren(); pendientes.hidden = !sinMesa.length;
-  if (sinMesa.length) {
+  const sinMesaFiltrados = filtrados.filter(p => !p.mesa);
+  const pendientes = $('sin-mesa-pases'); pendientes.replaceChildren(); pendientes.hidden = !sinMesaFiltrados.length;
+  if (sinMesaFiltrados.length) {
     pendientes.append(nodo('h3', 'Confirmados pendientes de mesa'));
     const lista = nodo('ul', '', 'invitados-mesa');
-    for (const p of sinMesa) { const item = nodo('li', p.nombre); item.append(botonMovimiento(p, 'Buscar mesa')); lista.append(item); }
+    for (const p of sinMesaFiltrados) { const item = nodo('li', p.nombre); item.append(botonMovimiento(p, 'Buscar mesa')); lista.append(item); }
     pendientes.append(lista);
   }
   const sugerencias = $('sugerencias-mesas'); sugerencias.replaceChildren();
   if (reservas) sugerencias.append(nodo('p', `${reservas} ${reservas === 1 ? 'lugar reservado' : 'lugares reservados'} para los papás, aparte de los confirmados.`, 'nota-reservas'));
-  const propuestas = sugerirMovimientos(pases, mesas);
+  const propuestas = sugerirMovimientos(pases, mesas).filter(p => filtroRelacion(p.titular));
   if (!propuestas.length) sugerencias.append(nodo('p', 'No hay propuestas prioritarias. Abre una mesa o busca un pase para probar otros movimientos.'));
   for (const p of propuestas.slice(0, 6)) {
     const item = nodo('article', '', 'propuesta-mesa');
@@ -213,7 +223,7 @@ function render() {
     if (!grupos.has(pase.confirmacionId)) grupos.set(pase.confirmacionId, []);
     grupos.get(pase.confirmacionId).push(pase);
   }
-  const familias = [...grupos.values()].filter(grupo => grupo.some(p => normalizar([p.nombre, p.mesaTexto, p.codigo, p.relacion].join(' ')).includes(q)));
+  const familias = [...grupos.values()].filter(grupo => grupo.some(p => filtroRelacion(p) && normalizar([p.nombre, p.mesaTexto, p.codigo, p.relacion].join(' ')).includes(q)));
   $('familias-pases').replaceChildren();
   const visibles = familias.reduce((n, g) => n + g.length, 0);
   $('resumen-pases').textContent = `${visibles} ${visibles === 1 ? 'pase' : 'pases'} en ${familias.length} ${familias.length === 1 ? 'confirmación' : 'confirmaciones'}.`;
@@ -286,6 +296,7 @@ $('descargar-mesas-pdf').addEventListener('click', () => descargarReporte({
 }));
 $('buscar-pases').addEventListener('input', render);
 $('filtro-mesas').addEventListener('change', renderAcomodo);
+$('filtro-relacion').addEventListener('change', () => { renderAcomodo(); render(); });
 $('grupo-movimiento').addEventListener('change', () => opcionesDestino($('destino-movimiento').value));
 $('destino-movimiento').addEventListener('change', limpiarSimulacion);
 $('form-movimiento').addEventListener('submit', simularMovimiento);

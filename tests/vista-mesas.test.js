@@ -1,6 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { opcionesMovimiento, sugerirMovimientos } from '../lib/vista-mesas.js';
+import { coincideRelacion, opcionesMovimiento, sugerirMovimientos } from '../lib/vista-mesas.js';
+test('filtra por lado y parentesco sin excluir hermanos de la familia', () => {
+  assert(coincideRelacion('Hermanos de la novia', 'Familiares de la novia'));
+  assert(!coincideRelacion('Hermanos del novio', 'Familiares de la novia'));
+  assert(!coincideRelacion('Amigos del novio', 'Familiares del novio'));
+  assert(coincideRelacion('Amigos del novio', 'Amigos del novio'));
+  assert(!coincideRelacion('Amigos de ambos', 'Amigos del novio'));
+  assert(coincideRelacion('Familiares de ambos', ''));
+});
 
 const relacion = 'Amigos de la novia';
 const persona = (confirmacionId, mesa, extra = {}) => ({ confirmacionId, relacion, mesa, ...extra });
