@@ -27,3 +27,34 @@
 #estado-movimiento{color:var(--accent)}#descargar-excel:disabled{opacity:.5;cursor:wait}
 @media(max-width:620px){#acomodo-pases{padding:14px}.mapa-mesas{grid-template-columns:repeat(2,minmax(0,1fr))}.totales-acomodo{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:360px){.mapa-mesas{grid-template-columns:1fr}}
+.gestion-pases{max-width:1220px}
+.plano-salon{margin:20px 0 24px;border-top:1px solid var(--line);padding-top:18px}
+.plano-salon>h3{font-size:1.6rem;color:var(--accent);margin:0}
+.plano-salon .nota-plano{max-width:850px;font-size:.98rem}
+.layout-salon{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;margin-top:10px;align-items:start}
+.lienzo-salon{overflow:auto;border:1px solid #adb59d;border-radius:9px;background:#fafaf4;padding:12px}
+.dibujo-salon{position:relative;width:100%;min-width:340px;aspect-ratio:720 / 960;border:2px solid #a9b397;border-top:0;border-radius:10px}
+.pista-salon{position:absolute;left:44%;top:43%;width:28%;height:51%;display:grid;place-items:center;background:repeating-linear-gradient(90deg,#ece9df 0 25px,#e1ddcf 25px 26px);border:1px solid #b5bba8;color:#69734c;font:12px Georgia;text-align:center}
+.lobby-salon{position:absolute;left:80%;top:41%;width:19%;height:17%;display:grid;place-items:center;border:1px solid #a9b397;background:#efefe5;color:#69734c;font:12px Georgia}
+.escenario-salon{position:absolute;left:39%;top:0;width:23%;height:5%;display:grid;place-items:center;border:1px solid #a9b397;background:#eeeee2;font:10px Georgia;color:#69734c}
+.entrada-salon{position:absolute;left:72%;top:1%;font:10px Georgia;color:#69734c}
+.mesa-salon{position:absolute;transform:translate(-50%,-50%);width:11%;aspect-ratio:1;border:3px solid #97a77d;outline:3px dotted #c4cbb4;outline-offset:3px;border-radius:50%;background:#f0f4e8;color:#34452d;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;cursor:pointer;padding:0;font:14px Georgia}
+.mesa-salon strong{font-size:1.15em}.mesa-salon span{font-size:.65em}
+.mesa-salon.imperial-salon{width:9%;height:19%;aspect-ratio:auto;border-radius:5px;background:#eee8dd;outline-color:#bfbba9}
+.mesa-salon.mesa-llena{background:#e8e3dc;border-color:#a8957b}
+.mesa-salon.mesa-seleccionada{border-color:#b77686;box-shadow:0 0 0 4px #e9cfd4}
+.mesa-salon:focus-visible,.mesa-salon.mesa-destino{outline:4px solid #b77686;outline-offset:4px}
+.estado-plano{min-height:1.5em;color:#805763}
+.lateral-salon{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px}
+.lateral-salon h4{margin:0;color:var(--accent);font-size:1.2rem}
+.lateral-salon label,.lateral-salon select{font-size:1rem}
+.lateral-salon select{width:100%;padding:10px;background:var(--bg);color:var(--ink);border:1px solid #aeb59a;border-radius:5px}
+.grupos-plano{max-height:540px;overflow:auto;overscroll-behavior:contain}
+.grupo-plano{padding:12px 0;border-top:1px solid var(--line);margin-top:10px}
+.grupo-plano h5{font-size:1rem;margin:0}
+.persona-plano{width:100%;display:block;text-align:left;border:1px solid #ccd2bf;border-radius:5px;padding:9px 8px;margin:6px 0;background:#f4f6ef;color:var(--ink);font:14px Georgia;cursor:grab}
+.persona-plano:hover,.persona-plano.persona-elegida{border-color:#b77686;background:#f6e8ea}
+.reserva-plano{background:#f7eee2;padding:8px;border-radius:5px}
+.acciones-plano{text-align:right}
+@media(max-width:900px){.layout-salon{grid-template-columns:minmax(0,1fr) 240px}.lienzo-salon{padding:7px}.mesa-salon{font-size:12px}}
+@media(max-width:690px){.layout-salon{grid-template-columns:1fr}.lateral-salon{order:-1}.grupos-plano{max-height:240px}.lienzo-salon{padding:8px}.mesa-salon{font-size:13px}}

@@ -1,5 +1,6 @@
 import { enlaceWhatsApp, enlacePaseGrupo, whatsappPaseGrupo } from './lib/reenvio.js';
 import { agruparConfirmados, opcionesMovimiento, sugerirMovimientos } from './lib/vista-mesas.js';
+import { iniciarPlanoSalon } from './lib/plano-salon.js';
 const $ = id => document.getElementById(id);
 let clave = '', pases = [], mesas = [], ocupado = false;
 const normalizar = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
@@ -12,6 +13,7 @@ const dialogo = $('dialogo-mesa');
 const mensajeMovimiento = texto => $('estado-movimiento').textContent = texto;
 const nombreMesa = numero => mesas.find(m => m.numero === numero)?.texto || 'Sin mesa';
 const numeroPersonas = n => `${n} ${n === 1 ? 'persona' : 'personas'}`;
+const planoSalon = iniciarPlanoSalon({ raiz: $('plano-salon'), obtenerPases: () => pases, obtenerMesas: () => mesas, mover: abrirMovimiento });
 const link = (text, url, secondary = false) => {
   const a = document.createElement('a'); a.className = 'btn' + (secondary ? ' secundario' : '');
   a.textContent = text; a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer'; return a;
@@ -23,6 +25,7 @@ function salir() {
   if (dialogo.open) dialogo.close();
   personaMovimiento = movimientoRevisado = null;
   $('estado-mesas-pdf').textContent = '';
+  planoSalon.limpiar();
 }
 function limpiarSimulacion() {
   movimientoRevisado = null;
@@ -151,6 +154,7 @@ async function cambiarEstado(pase) {
   finally { ocupado = false; }
 }
 function renderAcomodo() {
+  planoSalon.actualizar();
   const activos = pases.filter(p => p.activo !== false);
   const sinMesa = activos.filter(p => !p.mesa);
   const libres = mesas.reduce((n, m) => n + m.disponibles, 0);
